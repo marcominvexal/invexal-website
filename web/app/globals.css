@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-ink text-body font-sans antialiased;
+}
+
+::selection {
+  background: rgba(19, 81, 216, 0.18);
+}
+
+/* Signature: signal lattice background */
+.signal-lattice {
+  position: relative;
+}
+.signal-lattice::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(15, 23, 42, 0.16) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(to bottom, black, transparent 85%);
+  pointer-events: none;
+}
+
+/* Gradient hairline border for glass cards (masked pseudo-element) */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(120deg, rgba(19, 81, 216, 0.7), rgba(19, 81, 216, 0.35));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+.gradient-border:hover::before,
+.gradient-border:focus-within::before {
+  opacity: 1;
+}
+
+.text-gradient {
+  @apply bg-signal-gradient bg-clip-text text-transparent;
+}
+
+/* Accessibility floor */
+:focus-visible {
+  outline: 2px solid rgba(19, 81, 216, 0.7);
+  outline-offset: 2px;
+}
+.skip-link {
+  @apply absolute left-4 top-4 z-[100] -translate-y-20 rounded-full bg-teal px-4 py-2 text-sm font-medium text-ink transition focus:translate-y-0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-marquee,
+  .animate-pulseDot,
+  .animate-lattice,
+  .animate-drift {
+    animation: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
