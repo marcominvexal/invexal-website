@@ -23,7 +23,7 @@ export default function OGImage() {
         {/* Telemetry eyebrow */}
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 10, height: 10, borderRadius: 999, background: "#D97706" }} />
-          <div style={{ color: "#1351D8", fontSize: 22, letterSpacing: 4, textTransform: "uppercase" }}>
+          <div style={{ color: "#0066FF", fontSize: 22, letterSpacing: 4, textTransform: "uppercase" }}>
             Enterprise AI · Computer Vision · AIoT · Automation
           </div>
         </div>
@@ -33,7 +33,7 @@ export default function OGImage() {
           <div style={{ color: "#212529", fontSize: 84, fontWeight: 700, lineHeight: 1.05 }}>
             Intelligence for the
           </div>
-          <div style={{ color: "#1351D8", fontSize: 84, fontWeight: 700, lineHeight: 1.05 }}>
+          <div style={{ color: "#0066FF", fontSize: 84, fontWeight: 700, lineHeight: 1.05 }}>
             physical world.
           </div>
         </div>

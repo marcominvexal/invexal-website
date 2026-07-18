@@ -1,4 +1,12 @@
-import { Button, TelemetryTag } from "@/components/ui/primitives";
+import { CheckCircle2 } from "lucide-react";
+import { TelemetryTag } from "@/components/ui/primitives";
+import DemoRequestForm from "@/components/forms/DemoRequestForm";
+
+const checklist = [
+  "AI that sees, predicts, and acts — not just a dashboard.",
+  "Pilot to fleet rollout in weeks, with a go/no-go you can defend.",
+  "Enterprise-grade security, procurement, and support from day one.",
+];
 
 export default function CTABand({
   title = "Ready to see what your operation is telling you?",
@@ -8,15 +16,29 @@ export default function CTABand({
   lede?: string;
 }) {
   return (
-    <section className="relative overflow-hidden border-t border-line">
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-signal-radial opacity-40" />
-      <div className="relative mx-auto max-w-4xl px-6 py-24 text-center">
-        <TelemetryTag live className="mb-6 inline-flex">Next step</TelemetryTag>
-        <h2 className="font-display text-display font-semibold text-body">{title}</h2>
-        <p className="mx-auto mt-4 max-w-2xl text-lg text-muted">{lede}</p>
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <Button href="/book-a-demo">Book a demo</Button>
-          <Button href="/resources/ai-readiness" variant="secondary">Take the AI Readiness Assessment</Button>
+    <section className="bg-ink py-24">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
+          <div>
+            <TelemetryTag live className="mb-6 inline-flex">Connect with us</TelemetryTag>
+            <h2 className="font-display text-display font-semibold text-body">{title}</h2>
+            <p className="mt-4 max-w-lg text-lg leading-relaxed text-muted">{lede}</p>
+            <ul className="mt-8 space-y-3">
+              {checklist.map((item) => (
+                <li key={item} className="flex items-start gap-3 text-body">
+                  <CheckCircle2 aria-hidden className="mt-0.5 h-5 w-5 shrink-0 text-teal" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="rounded-2xl border border-line bg-ink p-6 shadow-card-lg sm:p-8">
+            <h3 className="font-display text-lg font-semibold text-body">Schedule a demo</h3>
+            <p className="mt-1 text-sm text-muted">See Invexal on your own cameras and data.</p>
+            <div className="mt-6">
+              <DemoRequestForm />
+            </div>
+          </div>
         </div>
       </div>
     </section>

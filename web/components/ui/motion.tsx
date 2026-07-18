@@ -31,6 +31,29 @@ export function Reveal({
   );
 }
 
+/* ---------- TimelineLine (scroll-triggered progress fill) ---------- */
+export function TimelineLine({
+  orientation,
+  className,
+}: {
+  orientation: "horizontal" | "vertical";
+  className?: string;
+}) {
+  const reduce = useReducedMotion();
+  const isHorizontal = orientation === "horizontal";
+  return (
+    <motion.div
+      aria-hidden
+      className={cn("absolute bg-signal-gradient", className)}
+      style={{ transformOrigin: isHorizontal ? "left" : "top" }}
+      initial={reduce ? false : isHorizontal ? { scaleX: 0 } : { scaleY: 0 }}
+      whileInView={{ scaleX: 1, scaleY: 1 }}
+      viewport={{ once: true, amount: 0.6 }}
+      transition={{ duration: 1.1, ease: "easeInOut", delay: 0.2 }}
+    />
+  );
+}
+
 /* ---------- StatCounter ---------- */
 export function StatCounter({
   value,

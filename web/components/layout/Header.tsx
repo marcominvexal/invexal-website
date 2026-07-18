@@ -2,9 +2,15 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Menu, X, Phone } from "lucide-react";
+import {
+  ChevronDown, Menu, X, Phone, ArrowRight,
+  TrendingUp, Bot, Workflow, Eye, Leaf, Building2,
+  Factory, HeartPulse, ShoppingBag, GraduationCap, Hotel, Fuel, Zap, HardHat, Truck, Mountain, Wheat, Radio,
+  Camera, Wind, MapPin, Gauge, Sparkles,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { services } from "@/lib/data/services";
 import { solutions, solutionGroups } from "@/lib/data/solutions";
@@ -23,10 +29,102 @@ const companyLinks = [
   { name: "Resources", href: "/resources" },
 ];
 
+const serviceCatIcons: Record<string, typeof TrendingUp> = {
+  "AI & Data": TrendingUp,
+  "Intelligent Systems": Bot,
+  "Connected Operations": Workflow,
+};
+
+const solutionGroupIcons: Record<string, typeof Eye> = {
+  "Vision AI": Eye,
+  Operations: Workflow,
+  "Environment & Energy": Leaf,
+  "Smart Spaces": Building2,
+};
+
+const industryIcons: Record<string, typeof Factory> = {
+  manufacturing: Factory,
+  healthcare: HeartPulse,
+  retail: ShoppingBag,
+  education: GraduationCap,
+  hospitality: Hotel,
+  "oil-and-gas": Fuel,
+  utilities: Zap,
+  construction: HardHat,
+  logistics: Truck,
+  mining: Mountain,
+  agriculture: Wheat,
+  telecommunications: Radio,
+  "smart-cities": Building2,
+};
+
+const productIcons: Record<string, typeof Camera> = {
+  visionwatch: Camera,
+  fueliq: Fuel,
+  ecotrack: Leaf,
+  "worker-safety": HardHat,
+  "smart-air-purification": Wind,
+  "vehicle-tracking": Truck,
+  "asset-tracking": MapPin,
+  "smart-metering": Gauge,
+  "environmental-monitoring": Leaf,
+};
+
+const oneLine = (text: string, max = 46) => {
+  const first = text.split(". ")[0];
+  return first.length > max ? `${first.slice(0, max - 1).trimEnd()}…` : `${first}.`;
+};
+
+/** Featured promo panel shown on the right of each mega menu. */
+function Featured({
+  image, eyebrow, title, href, cta,
+}: { image: string; eyebrow: string; title: string; href: string; cta: string }) {
+  return (
+    <Link
+      href={href}
+      className="group relative flex h-full flex-col justify-end overflow-hidden rounded-2xl border border-line"
+    >
+      <Image src={image} alt="" fill sizes="280px" className="object-cover transition duration-500 group-hover:scale-105" />
+      <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-navy/95 via-navy/50 to-navy/10" />
+      <div className="relative p-4">
+        <div className="font-mono text-telemetry uppercase text-teal">{eyebrow}</div>
+        <div className="mt-1 font-display text-sm font-semibold text-white">{title}</div>
+        <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-teal">
+          {cta} <ArrowRight aria-hidden className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function MenuLink({
+  href, icon: Icon, name, desc, onClick,
+}: { href: string; icon?: typeof Factory; name: string; desc?: string; onClick: () => void }) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className="group flex items-start gap-3 rounded-lg px-2 py-2 transition hover:bg-glass"
+    >
+      {Icon && (
+        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line bg-glass text-muted transition group-hover:border-teal/40 group-hover:text-teal">
+          <Icon aria-hidden className="h-4 w-4" />
+        </span>
+      )}
+      <span className="min-w-0">
+        <span className="block truncate text-sm font-medium text-body">{name}</span>
+        {desc && <span className="block truncate text-xs text-muted">{desc}</span>}
+      </span>
+    </Link>
+  );
+}
+
 export default function Header() {
+  const pathname = usePathname();
   const [open, setOpen] = useState<MenuKey>(null);
   const [mobile, setMobile] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [hovered, setHovered] = useState<MenuKey>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -48,26 +146,57 @@ export default function Header() {
 
   const serviceCats = ["AI & Data", "Intelligent Systems", "Connected Operations"] as const;
 
-  const NavButton = ({ id, label }: { id: MenuKey; label: string }) => (
-    <button
-      className={cn(
-        "flex items-center gap-1 rounded-full px-3 py-2 text-sm text-muted transition hover:text-body",
-        open === id && "text-body"
-      )}
-      aria-expanded={open === id}
-      aria-haspopup="true"
-      onClick={() => setOpen(open === id ? null : id)}
-    >
-      {label}
-      <ChevronDown aria-hidden className={cn("h-3.5 w-3.5 transition-transform", open === id && "rotate-180")} />
-    </button>
-  );
+  const sectionPrefix: Record<Exclude<MenuKey, null>, string> = {
+    services: "/services",
+    solutions: "/solutions",
+    industries: "/industries",
+    products: "/products",
+    company: "/company",
+  };
+  const isActiveSection = (id: MenuKey) =>
+    !!id && (pathname === sectionPrefix[id] || pathname.startsWith(`${sectionPrefix[id]}/`));
+
+  const solid = scrolled || open !== null || mobile;
+
+  const NavButton = ({ id, label }: { id: MenuKey; label: string }) => {
+    const active = isActiveSection(id);
+    return (
+      <button
+        className={cn(
+          "relative flex items-center gap-1 rounded-full px-3 py-2 text-sm transition-colors duration-300",
+          open === id || active
+            ? solid ? "text-body" : "text-white"
+            : solid ? "text-muted hover:text-teal" : "text-white/75 hover:text-white"
+        )}
+        aria-expanded={open === id}
+        aria-haspopup="true"
+        aria-current={active ? "page" : undefined}
+        onClick={() => setOpen(open === id ? null : id)}
+        onMouseEnter={() => setHovered(id)}
+        onMouseLeave={() => setHovered(null)}
+      >
+        {label}
+        <ChevronDown aria-hidden className={cn("h-3.5 w-3.5 transition-transform", open === id && "rotate-180")} />
+        {active && <span aria-hidden className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-teal" />}
+        {hovered === id && !active && (
+          <motion.span
+            aria-hidden
+            layoutId="nav-hover-underline"
+            className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-teal/60"
+            transition={{ type: "spring", stiffness: 420, damping: 32 }}
+          />
+        )}
+      </button>
+    );
+  };
 
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 border-b transition-colors",
-        scrolled || open ? "border-line bg-ink/85 backdrop-blur-xl" : "border-transparent"
+        "fixed inset-x-0 top-0 z-50 border-b transition-all duration-300",
+        solid
+          ? "border-line bg-ink/95 shadow-card backdrop-blur-xl"
+          : "border-transparent bg-transparent shadow-none"
       )}
       onMouseLeave={() => setOpen(null)}
     >
@@ -80,9 +209,16 @@ export default function Header() {
             width={914}
             height={250}
             priority
-            className="h-7 w-auto"
+            className={cn("h-7 w-auto transition duration-300", !solid && "brightness-0 invert")}
           />
-          <span className="ml-3 border-l border-line pl-3 font-display text-lg font-bold text-body">AIoT</span>
+          <span
+            className={cn(
+              "ml-3 border-l pl-3 font-display text-lg font-bold transition-colors duration-300",
+              solid ? "border-line text-body" : "border-white/20 text-white"
+            )}
+          >
+            AIoT
+          </span>
         </Link>
 
         <nav aria-label="Main" className="hidden items-center lg:flex">
@@ -94,19 +230,25 @@ export default function Header() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <a href="tel:+13025790576" className="flex items-center gap-2 text-sm text-muted hover:text-body">
+          <a
+            href="tel:+13025790576"
+            className={cn(
+              "flex items-center gap-2 text-sm transition-colors duration-300",
+              solid ? "text-muted hover:text-teal" : "text-white/70 hover:text-white"
+            )}
+          >
             <Phone aria-hidden className="h-4 w-4" /> +1 (302) 579-0576
           </a>
           <Link
             href="/book-a-demo"
-            className="rounded-full bg-signal-gradient px-5 py-2 text-sm font-medium text-ink shadow-glow hover:brightness-110"
+            className="rounded-full bg-signal-gradient px-5 py-2 text-sm font-medium text-ink shadow-glow transition hover:scale-[1.03] active:scale-[0.98]"
           >
             Book a demo
           </Link>
         </div>
 
         <button
-          className="lg:hidden"
+          className={cn("-m-2 p-2 transition-colors duration-300 lg:hidden", solid ? "text-body" : "text-white")}
           aria-label={mobile ? "Close menu" : "Open menu"}
           aria-expanded={mobile}
           onClick={() => setMobile(!mobile)}
@@ -119,76 +261,129 @@ export default function Header() {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.99, y: -4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.99, y: -4 }}
-            transition={{ duration: 0.16 }}
-            className="hidden border-t border-line bg-ink/95 backdrop-blur-xl lg:block"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="hidden border-t border-line bg-ink/98 shadow-card-lg backdrop-blur-xl lg:block"
           >
-            <div className="mx-auto grid max-w-7xl gap-8 px-6 py-8 lg:grid-cols-4">
-              {open === "services" &&
-                serviceCats.map((cat) => (
-                  <div key={cat}>
-                    <div className="mb-3 font-mono text-telemetry uppercase text-teal">{cat}</div>
-                    <ul className="space-y-1">
-                      {services.filter((s) => s.category === cat).map((s) => (
-                        <li key={s.slug}>
-                          <Link href={`/services/${s.slug}`} onClick={() => setOpen(null)} className="block rounded px-2 py-1.5 text-sm text-muted hover:bg-glass hover:text-body">
-                            {s.name}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              {open === "solutions" &&
-                solutionGroups.map((g) => (
-                  <div key={g}>
-                    <div className="mb-3 font-mono text-telemetry uppercase text-teal">{g}</div>
-                    <ul className="space-y-1">
-                      {solutions.filter((s) => s.group === g).map((s) => (
-                        <li key={s.slug}>
-                          <Link href={`/solutions/${s.slug}`} onClick={() => setOpen(null)} className="block rounded px-2 py-1.5 text-sm text-muted hover:bg-glass hover:text-body">
-                            {s.name}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+            <div className="mx-auto max-w-7xl px-6 py-8">
+              {open === "services" && (
+                <div className="grid gap-8 lg:grid-cols-[repeat(3,1fr)_280px]">
+                  {serviceCats.map((cat, i) => {
+                    const CatIcon = serviceCatIcons[cat];
+                    return (
+                      <motion.div key={cat} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                        <div className="mb-3 flex items-center gap-2 font-mono text-telemetry uppercase text-teal">
+                          <CatIcon aria-hidden className="h-3.5 w-3.5" /> {cat}
+                        </div>
+                        <div className="space-y-0.5">
+                          {services.filter((s) => s.category === cat).map((s) => (
+                            <MenuLink key={s.slug} href={`/services/${s.slug}`} name={s.name} desc={oneLine(s.lede)} onClick={() => setOpen(null)} />
+                          ))}
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                  <Featured
+                    image="/photos/category-ai-data.jpg"
+                    eyebrow="Services"
+                    title="Eighteen disciplines, one delivery spine"
+                    href="/services"
+                    cta="Explore all services"
+                  />
+                </div>
+              )}
+
+              {open === "solutions" && (
+                <div className="grid gap-8 lg:grid-cols-[repeat(4,1fr)_280px]">
+                  {solutionGroups.map((g, i) => {
+                    const GIcon = solutionGroupIcons[g];
+                    return (
+                      <motion.div key={g} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                        <div className="mb-3 flex items-center gap-2 font-mono text-telemetry uppercase text-teal">
+                          <GIcon aria-hidden className="h-3.5 w-3.5" /> {g}
+                        </div>
+                        <div className="space-y-0.5">
+                          {solutions.filter((s) => s.group === g).map((s) => (
+                            <MenuLink key={s.slug} href={`/solutions/${s.slug}`} name={s.name} onClick={() => setOpen(null)} />
+                          ))}
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                  <Featured
+                    image="/photos/group-vision-ai.jpg"
+                    eyebrow="Solutions"
+                    title="Nineteen ready-to-deploy solutions"
+                    href="/solutions"
+                    cta="Explore all solutions"
+                  />
+                </div>
+              )}
+
               {open === "industries" && (
-                <ul className="col-span-4 grid grid-cols-3 gap-1 lg:grid-cols-4">
-                  {industries.map((i) => (
-                    <li key={i.slug}>
-                      <Link href={`/industries/${i.slug}`} onClick={() => setOpen(null)} className="block rounded px-2 py-1.5 text-sm text-muted hover:bg-glass hover:text-body">
-                        {i.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                <div className="grid gap-8 lg:grid-cols-[1fr_280px]">
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-0.5 lg:grid-cols-3">
+                    {industries.map((ind) => (
+                      <MenuLink
+                        key={ind.slug}
+                        href={`/industries/${ind.slug}`}
+                        icon={industryIcons[ind.slug]}
+                        name={ind.name}
+                        onClick={() => setOpen(null)}
+                      />
+                    ))}
+                  </div>
+                  <Featured
+                    image="/photos/industry-manufacturing.jpg"
+                    eyebrow="Industries"
+                    title="Thirteen industries, one operating model"
+                    href="/industries"
+                    cta="Explore all industries"
+                  />
+                </div>
               )}
+
               {open === "products" && (
-                <ul className="col-span-4 grid grid-cols-3 gap-1">
-                  {products.map((p) => (
-                    <li key={p.slug}>
-                      <Link href={`/products/${p.slug}`} onClick={() => setOpen(null)} className="block rounded px-2 py-2 hover:bg-glass">
-                        <span className="block text-sm font-medium text-body">{p.name}</span>
-                        <span className="block text-xs text-muted">{p.tagline}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                <div className="grid gap-8 lg:grid-cols-[1fr_280px]">
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-0.5 lg:grid-cols-3">
+                    {products.map((p) => (
+                      <MenuLink
+                        key={p.slug}
+                        href={`/products/${p.slug}`}
+                        icon={productIcons[p.slug]}
+                        name={p.name}
+                        desc={p.tagline}
+                        onClick={() => setOpen(null)}
+                      />
+                    ))}
+                  </div>
+                  <Featured
+                    image="/photos/hub-products.jpg"
+                    eyebrow="Products"
+                    title="Nine platforms you can demo this week"
+                    href="/products"
+                    cta="Explore all products"
+                  />
+                </div>
               )}
+
               {open === "company" && (
-                <ul className="col-span-4 grid grid-cols-3 gap-1 lg:grid-cols-4">
-                  {companyLinks.map((l) => (
-                    <li key={l.href}>
-                      <Link href={l.href} onClick={() => setOpen(null)} className="block rounded px-2 py-1.5 text-sm text-muted hover:bg-glass hover:text-body">
-                        {l.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                <div className="grid gap-8 lg:grid-cols-[1fr_280px]">
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-0.5 lg:grid-cols-3">
+                    {companyLinks.map((l) => (
+                      <MenuLink key={l.href} href={l.href} icon={Sparkles} name={l.name} onClick={() => setOpen(null)} />
+                    ))}
+                  </div>
+                  <Featured
+                    image="/photos/about-team.jpg"
+                    eyebrow="Company"
+                    title="Ten years wiring the physical world"
+                    href="/company/about"
+                    cta="About Invexal"
+                  />
+                </div>
               )}
             </div>
           </motion.div>

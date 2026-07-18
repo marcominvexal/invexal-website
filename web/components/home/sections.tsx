@@ -4,54 +4,67 @@ import {
   Eye, Bot, Sparkles, TrendingUp, MessageSquareText, Cpu, Boxes, Workflow,
   ArrowUpRight,
 } from "lucide-react";
-import { Button, PhotoFrame, GlassCard, SectionHeading, TelemetryTag } from "@/components/ui/primitives";
-import { Reveal, StatCounter, Accordion, TestimonialCarousel } from "@/components/ui/motion";
+import { Button, GlassCard, PhotoFrame, SectionHeading, TelemetryTag } from "@/components/ui/primitives";
+import { Reveal, StatCounter, Accordion, TestimonialCarousel, TimelineLine } from "@/components/ui/motion";
 import { stats, testimonials, homeFaqs, whyInvexal, processSteps, capabilities } from "@/lib/data/site";
 import { services } from "@/lib/data/services";
+import { solutions } from "@/lib/data/solutions";
 import { industries } from "@/lib/data/industries";
 import { products } from "@/lib/data/products";
+import { HeroVisual } from "./HeroVisual";
+import { CapabilityOrbit } from "./CapabilityOrbit";
+
+/** width/height mirror each logo file's real intrinsic aspect ratio so next/image
+ * (and object-contain) render every mark at a consistent height without squishing
+ * or clipping wide logos inside a fixed-width card. */
+const clientLogos = [
+  { name: "Deutsche Telekom IoT", src: "/brand/clients/deutsche-telekom.svg", w: 84, h: 100 },
+  { name: "Mazik Global", src: "/brand/clients/mazik-global.png", w: 413, h: 100 },
+  { name: "IDTRONIC", src: "/brand/clients/idtronic.webp", w: 392, h: 100 },
+  { name: "Al Busayra", src: "/brand/clients/al-busayra.png", w: 290, h: 100 },
+  { name: "Exponentia Global", src: "/brand/clients/exponentia-global.png", w: 198, h: 100 },
+  { name: "Infinitee Xclusives", src: "/brand/clients/infinitee-xclusives.png", w: 452, h: 100 },
+  { name: "Maliban", src: "/brand/clients/maliban.png", w: 221, h: 100 },
+  { name: "Silvermill", src: "/brand/clients/silvermill.svg", w: 133, h: 100 },
+];
 
 /* ---------- Hero ---------- */
 export function Hero() {
   return (
-    <section className="signal-lattice relative overflow-hidden pb-24 pt-40">
-      <div aria-hidden className="pointer-events-none absolute -top-40 left-1/2 h-[36rem] w-[56rem] -translate-x-1/2 bg-signal-radial opacity-60 blur-2xl" />
+    <section className="signal-lattice-dark relative overflow-hidden bg-navy pb-24 pt-40">
+      <div aria-hidden className="pointer-events-none absolute -top-40 left-1/2 h-[36rem] w-[56rem] -translate-x-1/2 bg-signal-radial opacity-40 blur-2xl" />
       <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2 lg:gap-16">
         <div className="text-center lg:text-left">
           <Reveal>
-            <TelemetryTag live className="mb-6 inline-flex">
-              Enterprise AI · Computer Vision · AIoT · Automation
+            <TelemetryTag live className="mb-6 inline-flex rounded-full border border-white/15 bg-white/5 px-4 py-1.5 backdrop-blur">
+              Enterprise AI Platform
             </TelemetryTag>
           </Reveal>
           <Reveal delay={0.08}>
-            <h1 className="font-display text-display-xl font-bold tracking-tight text-body">
+            <h1 className="font-display text-display-xl font-bold tracking-tight text-white">
               Intelligence for the <span className="text-gradient">physical world.</span>
             </h1>
           </Reveal>
           <Reveal delay={0.16}>
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted md:text-xl lg:mx-0">
-              Invexal builds AI that sees, predicts, and acts — AI agents, computer vision, and
-              connected operations deployed where your business actually runs: plants, fleets,
-              sites, and cities.
+            <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-white/65 md:text-xl lg:mx-0">
+              AI agents, computer vision, and connected operations — deployed where your business actually runs.
             </p>
           </Reveal>
           <Reveal delay={0.24}>
             <div className="mt-10 flex flex-wrap justify-center gap-4 lg:justify-start">
               <Button href="/book-a-demo">Book a demo</Button>
-              <Button href="/resources/ai-readiness" variant="secondary">
-                Take the AI Readiness Assessment
+              <Button
+                href="/solutions"
+                variant="secondary"
+                className="border-white/25 !bg-white/5 !text-white before:!bg-white/15 after:!bg-white/15 hover:border-white/50"
+              >
+                Explore solutions
               </Button>
             </div>
           </Reveal>
         </div>
         <Reveal delay={0.2} className="hidden lg:block">
-          <PhotoFrame
-            src="/photos/hero-factory-inspection.jpg"
-            alt="Engineer inspecting connected equipment on a production line"
-            priority
-            sizes="50vw"
-            className="aspect-[4/3] animate-drift"
-          />
+          <HeroVisual />
         </Reveal>
       </div>
     </section>
@@ -59,30 +72,20 @@ export function Hero() {
 }
 
 /* ---------- Trusted by ---------- */
-const clientLogos = [
-  { name: "Deutsche Telekom IoT", src: "/brand/clients/deutsche-telekom.svg", w: 140 },
-  { name: "Mazik Global", src: "/brand/clients/mazik-global.png", w: 130 },
-  { name: "IDTRONIC", src: "/brand/clients/idtronic.webp", w: 120 },
-  { name: "Al Busayra", src: "/brand/clients/al-busayra.png", w: 120 },
-  { name: "Exponentia Global", src: "/brand/clients/exponentia-global.png", w: 130 },
-  { name: "Infinitee Xclusives", src: "/brand/clients/infinitee-xclusives.png", w: 150 },
-  { name: "Maliban", src: "/brand/clients/maliban.webp", w: 110 },
-  { name: "Silvermill", src: "/brand/clients/silvermill.svg", w: 120 },
-];
 
 export function TrustedBy() {
   return (
-    <section aria-label="Trusted by" className="border-y border-line bg-ink-raised/60 py-10">
+    <section aria-label="Trusted by" className="border-y border-line bg-ink-raised/60 py-12">
       <div className="mx-auto max-w-7xl px-6">
-        <TelemetryTag className="mb-6 flex justify-center">Trusted across 5+ countries</TelemetryTag>
+        <TelemetryTag className="mb-8 flex justify-center">Trusted across 5+ countries</TelemetryTag>
         <div className="overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
-          <div className="flex w-max animate-marquee items-center gap-6 hover:[animation-play-state:paused]">
+          <div className="flex w-max items-center gap-8 [animation-duration:60s] animate-marquee hover:[animation-play-state:paused]">
             {[...clientLogos, ...clientLogos].map((c, i) => (
               <div
                 key={`${c.name}-${i}`}
-                className="flex h-16 w-40 shrink-0 items-center justify-center rounded-xl border border-line bg-glass px-6"
+                className="flex h-24 min-w-[160px] shrink-0 items-center justify-center rounded-2xl border border-line bg-glass px-8 shadow-card transition duration-200 hover:-translate-y-1 hover:border-teal/40 hover:shadow-glow"
               >
-                <Image src={c.src} alt={c.name} width={c.w} height={40} className="h-8 w-auto object-contain" />
+                <Image src={c.src} alt={c.name} width={c.w} height={c.h} className="h-12 w-auto object-contain" />
               </div>
             ))}
           </div>
@@ -108,66 +111,310 @@ export function Stats() {
   );
 }
 
-/* ---------- Services ---------- */
+/* ---------- Services (image left, cards right) ---------- */
+const serviceCatIcons: Record<string, typeof TrendingUp> = {
+  "AI & Data": TrendingUp,
+  "Intelligent Systems": Bot,
+  "Connected Operations": Workflow,
+};
+
 export function ServicesGrid() {
   const featured = [
     "ai-agent-development", "computer-vision", "generative-ai", "predictive-analytics",
-    "aiot-development", "ai-automation", "digital-twins", "ai-consulting",
+    "aiot-development", "ai-automation",
   ];
   const items = featured.map((slug) => services.find((s) => s.slug === slug)!).filter(Boolean);
   return (
-    <section className="py-24">
+    <section className="bg-ink-raised py-24">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
           eyebrow="Services"
           title="From AI strategy to systems in production"
           lede="Eighteen disciplines, one delivery model: assess, pilot, deploy, scale — with your data, on your infrastructure."
         />
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {items.map((s, i) => (
-            <Reveal key={s.slug} delay={(i % 4) * 0.06}>
-              <Link href={`/services/${s.slug}`} className="block h-full">
-                <GlassCard className="flex h-full flex-col">
-                  <TelemetryTag className="mb-3">{s.category}</TelemetryTag>
-                  <h3 className="font-display text-lg font-semibold text-body">{s.name}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{s.lede.split(". ")[0]}.</p>
-                  <span className="mt-4 inline-flex items-center gap-1 text-sm text-teal">
-                    Explore <ArrowUpRight aria-hidden className="h-3.5 w-3.5" />
-                  </span>
-                </GlassCard>
-              </Link>
-            </Reveal>
-          ))}
-        </div>
-        <div className="mt-10 text-center">
-          <Button href="/services" variant="ghost">All 18 services</Button>
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,340px)_1fr] lg:items-start">
+          <Reveal className="lg:sticky lg:top-28">
+            <PhotoFrame
+              src="/photos/category-ai-data.jpg"
+              alt="AI and data engineering at work"
+              sizes="(min-width: 1024px) 340px, 100vw"
+              className="aspect-[3/4]"
+            />
+            <div className="mt-6 flex items-center justify-between rounded-xl border border-line bg-glass px-5 py-4 backdrop-blur">
+              <div>
+                <div className="font-display text-2xl font-bold text-body">18</div>
+                <div className="font-mono text-telemetry uppercase text-muted">Disciplines, one spine</div>
+              </div>
+              <Button href="/services" variant="ghost">All services</Button>
+            </div>
+          </Reveal>
+          <div className="grid gap-6 sm:grid-cols-2">
+            {items.map((s, i) => (
+              <Reveal key={s.slug} delay={(i % 2) * 0.08}>
+                <Link href={`/services/${s.slug}`} className="group block h-full">
+                  <GlassCard className="flex h-full flex-col">
+                    {(() => {
+                      const Icon = serviceCatIcons[s.category] ?? Sparkles;
+                      return (
+                        <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-signal-gradient text-ink">
+                          <Icon aria-hidden className="h-5 w-5" />
+                        </span>
+                      );
+                    })()}
+                    <TelemetryTag className="mb-2">{s.category}</TelemetryTag>
+                    <h3 className="font-display text-lg font-semibold text-body">{s.name}</h3>
+                    <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{s.lede.split(". ")[0]}.</p>
+                    <div className="mt-4 flex flex-wrap gap-1.5">
+                      {s.stack.slice(0, 3).map((t) => (
+                        <span key={t} className="rounded-full border border-line bg-ink-raised px-2.5 py-1 text-xs text-muted">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                    <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-teal">
+                      Explore <ArrowUpRight aria-hidden className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </span>
+                  </GlassCard>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-/* ---------- Capabilities ---------- */
+/* ---------- Capabilities (circular ecosystem, navy anchor section) ---------- */
 const capIcons = [Sparkles, Bot, Eye, TrendingUp, MessageSquareText, Cpu, Boxes, Workflow];
+
 export function Capabilities() {
   return (
-    <section className="border-y border-line bg-ink-raised/40 py-24">
-      <div className="mx-auto max-w-7xl px-6">
+    <section className="relative overflow-hidden bg-navy py-24">
+      <div aria-hidden className="pointer-events-none absolute -top-40 left-1/2 h-[36rem] w-[56rem] -translate-x-1/2 rounded-full bg-teal/10 blur-[100px]" />
+      <div className="relative mx-auto max-w-7xl px-6">
         <SectionHeading
           eyebrow="AI capabilities"
           title="The stack behind every deployment"
           lede="Eight core capabilities, combined per use case — never a model looking for a problem."
           center
+          dark
         />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div className="hidden lg:block">
+          <CapabilityOrbit capabilities={capabilities} />
+        </div>
+
+        {/* Grid fallback — mobile/tablet */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:hidden">
           {capabilities.map((c, i) => {
             const Icon = capIcons[i % capIcons.length];
             return (
               <Reveal key={c.name} delay={(i % 4) * 0.05}>
-                <GlassCard className="h-full">
+                <div className="h-full rounded-2xl border border-white/15 bg-white/5 p-6 backdrop-blur">
                   <Icon aria-hidden className="mb-4 h-6 w-6 text-teal" />
-                  <h3 className="font-display font-semibold text-body">{c.name}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">{c.blurb}</p>
+                  <h3 className="font-display font-semibold text-white">{c.name}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-white/60">{c.blurb}</p>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Industries (large image cards) ---------- */
+const industryPhotoSlugs = ["manufacturing", "healthcare", "retail", "logistics", "construction", "smart-cities"];
+
+export function IndustriesGrid() {
+  const featured = industryPhotoSlugs.map((slug) => industries.find((i) => i.slug === slug)!).filter(Boolean);
+  return (
+    <section className="py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <SectionHeading
+          eyebrow="Industries"
+          title="Deployed where work is physical"
+          lede="Thirteen industries where cameras, sensors, and agents change the operating numbers."
+        />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {featured.map((ind, i) => {
+            const tags = ind.solutionStack.slice(0, 2).map((slug) => solutions.find((s) => s.slug === slug)?.name).filter(Boolean) as string[];
+            return (
+              <Reveal key={ind.slug} delay={(i % 3) * 0.06}>
+                <Link
+                  href={`/industries/${ind.slug}`}
+                  className="group relative flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-2xl border border-line"
+                >
+                  <Image
+                    src={`/photos/industry-${ind.slug}.jpg`}
+                    alt={ind.name}
+                    fill
+                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                    className="object-cover transition duration-500 group-hover:scale-105"
+                  />
+                  <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-navy/95 via-navy/55 to-navy/10 transition-opacity duration-300 group-hover:from-teal/90 group-hover:via-navy/60" />
+                  <div className="relative p-6">
+                    <div className="mb-2 flex flex-wrap gap-1.5">
+                      {tags.map((t) => (
+                        <span key={t} className="rounded-full border border-white/25 bg-white/10 px-2.5 py-0.5 text-[11px] text-white/90 backdrop-blur">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                    <h3 className="font-display text-xl font-semibold text-white">{ind.name}</h3>
+                    <p className="mt-1 text-sm text-white/75">{ind.benefits[0]}</p>
+                    <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-white">
+                      Explore <ArrowUpRight aria-hidden className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </span>
+                  </div>
+                </Link>
+              </Reveal>
+            );
+          })}
+        </div>
+        <div className="mt-10 text-center">
+          <Button href="/industries" variant="ghost">All 13 industries</Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Products (dashboard mockup cards) ---------- */
+function MiniBars({ seed }: { seed: number }) {
+  const bars = Array.from({ length: 9 }, (_, i) => 28 + ((seed * (i + 3) * 37) % 62));
+  return (
+    <div className="flex h-16 items-end gap-1.5 rounded-lg border border-line bg-ink px-3 pb-3 pt-4">
+      {bars.map((h, i) => (
+        <div key={i} className="flex-1 rounded-sm bg-signal-gradient" style={{ height: `${h}%`, opacity: 0.4 + (i / bars.length) * 0.6 }} />
+      ))}
+    </div>
+  );
+}
+
+function MiniGauge({ value }: { value: number }) {
+  const c = 2 * Math.PI * 26;
+  return (
+    <div className="flex h-16 items-center justify-center rounded-lg border border-line bg-ink">
+      <svg width="52" height="52" viewBox="0 0 60 60" className="-rotate-90">
+        <circle cx="30" cy="30" r="26" fill="none" stroke="currentColor" strokeWidth="5" className="text-line" />
+        <circle
+          cx="30" cy="30" r="26" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round"
+          className="text-teal" strokeDasharray={c} strokeDashoffset={c - (value / 100) * c}
+        />
+      </svg>
+    </div>
+  );
+}
+
+function MiniHeatmap({ seed }: { seed: number }) {
+  const cells = Array.from({ length: 24 }, (_, i) => (seed * (i + 2) * 53) % 100);
+  return (
+    <div className="grid h-16 grid-cols-8 gap-1 rounded-lg border border-line bg-ink p-2">
+      {cells.map((v, i) => (
+        <div key={i} className="rounded-[2px] bg-teal" style={{ opacity: 0.15 + (v / 100) * 0.75 }} />
+      ))}
+    </div>
+  );
+}
+
+function MiniCameraFeed({ src }: { src: string }) {
+  return (
+    <div className="relative h-16 overflow-hidden rounded-lg border border-line">
+      <Image src={src} alt="" fill sizes="200px" className="object-cover" />
+      <div className="absolute left-3 top-3 h-6 w-8 rounded-sm border-2 border-teal" />
+      <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-navy/80 px-1.5 py-0.5 font-mono text-[8px] uppercase text-white">
+        <span className="h-1 w-1 rounded-full bg-amber animate-pulseDot" /> Live
+      </span>
+    </div>
+  );
+}
+
+const productVisuals: Record<string, "camera" | "gauge" | "heatmap" | "bars"> = {
+  visionwatch: "camera",
+  fueliq: "gauge",
+  "worker-safety": "heatmap",
+  "asset-tracking": "bars",
+  ecotrack: "gauge",
+  "smart-metering": "bars",
+};
+
+export function ProductsShowcase() {
+  const featured = ["visionwatch", "fueliq", "worker-safety", "asset-tracking", "ecotrack", "smart-metering"];
+  const items = featured.map((slug) => products.find((p) => p.slug === slug)!).filter(Boolean);
+  return (
+    <section className="border-y border-line bg-ink-raised py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <SectionHeading
+          eyebrow="Products"
+          title="Platforms, not one-off projects"
+          lede="Nine production platforms you can demo this week — then tailor to your estate."
+        />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {items.map((p, i) => {
+            const visual = productVisuals[p.slug] ?? "bars";
+            return (
+              <Reveal key={p.slug} delay={(i % 3) * 0.06}>
+                <Link href={`/products/${p.slug}`} className="block h-full">
+                  <GlassCard className="flex h-full flex-col overflow-hidden !p-0">
+                    <div className="flex items-center gap-1.5 border-b border-line bg-ink-raised px-4 py-2.5">
+                      <span className="h-2 w-2 rounded-full bg-line" />
+                      <span className="h-2 w-2 rounded-full bg-line" />
+                      <span className="h-2 w-2 rounded-full bg-line" />
+                      <span className="ml-2 font-mono text-[10px] uppercase tracking-wide text-muted">{p.name} console</span>
+                    </div>
+                    <div className="p-6">
+                      {visual === "camera" && <MiniCameraFeed src="/photos/industry-retail.jpg" />}
+                      {visual === "gauge" && <MiniGauge value={70 + i * 5} />}
+                      {visual === "heatmap" && <MiniHeatmap seed={i + 1} />}
+                      {visual === "bars" && <MiniBars seed={i + 1} />}
+                      <div className="mb-2 mt-4 flex items-center justify-between">
+                        <h3 className="font-display text-xl font-semibold text-body">{p.name}</h3>
+                        <TelemetryTag live>Live</TelemetryTag>
+                      </div>
+                      <p className="text-sm font-medium text-teal">{p.tagline}</p>
+                      <p className="mt-3 text-sm leading-relaxed text-muted">{p.lede.split(" — ")[0]}.</p>
+                      <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-teal">
+                        View product <ArrowUpRight aria-hidden className="h-3.5 w-3.5" />
+                      </span>
+                    </div>
+                  </GlassCard>
+                </Link>
+              </Reveal>
+            );
+          })}
+        </div>
+        <div className="mt-10 text-center">
+          <Button href="/products" variant="ghost">All 9 products</Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Why Invexal (expertise cards) ---------- */
+const whyIcons = [Sparkles, Bot, Eye, Cpu, Boxes, Workflow];
+export function WhyInvexal() {
+  return (
+    <section className="py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <SectionHeading
+          eyebrow="Why Invexal"
+          title="A decade of hardware-grade delivery, now with an AI core"
+        />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {whyInvexal.map((w, i) => {
+            const Icon = whyIcons[i % whyIcons.length];
+            return (
+              <Reveal key={w.title} delay={(i % 3) * 0.06}>
+                <GlassCard className="h-full">
+                  <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-signal-gradient text-ink">
+                    <Icon aria-hidden className="h-5 w-5" />
+                  </span>
+                  <h3 className="font-display font-semibold text-body">{w.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">{w.body.split(". ")[0]}.</p>
                 </GlassCard>
               </Reveal>
             );
@@ -178,103 +425,10 @@ export function Capabilities() {
   );
 }
 
-/* ---------- Industries ---------- */
-export function IndustriesGrid() {
-  return (
-    <section className="py-24">
-      <div className="mx-auto max-w-7xl px-6">
-        <SectionHeading
-          eyebrow="Industries"
-          title="Deployed where work is physical"
-          lede="Thirteen industries where cameras, sensors, and agents change the operating numbers."
-        />
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {industries.map((ind, i) => (
-            <Reveal key={ind.slug} delay={(i % 3) * 0.04}>
-              <li>
-                <Link
-                  href={`/industries/${ind.slug}`}
-                  className="group flex items-center justify-between rounded-xl border border-line bg-glass px-5 py-4 backdrop-blur transition hover:border-teal/40"
-                >
-                  <span className="font-medium text-body">{ind.name}</span>
-                  <ArrowUpRight aria-hidden className="h-4 w-4 text-muted transition group-hover:text-teal" />
-                </Link>
-              </li>
-            </Reveal>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
-
-/* ---------- Products ---------- */
-export function ProductsShowcase() {
-  const featured = ["visionwatch", "fueliq", "worker-safety", "asset-tracking", "ecotrack", "smart-metering"];
-  const items = featured.map((slug) => products.find((p) => p.slug === slug)!).filter(Boolean);
-  return (
-    <section className="border-y border-line bg-ink-raised/40 py-24">
-      <div className="mx-auto max-w-7xl px-6">
-        <SectionHeading
-          eyebrow="Products"
-          title="Platforms, not one-off projects"
-          lede="Nine production platforms you can demo this week — then tailor to your estate."
-        />
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {items.map((p, i) => (
-            <Reveal key={p.slug} delay={(i % 3) * 0.06}>
-              <Link href={`/products/${p.slug}`} className="block h-full">
-                <GlassCard className="flex h-full flex-col">
-                  <div className="mb-2 flex items-center justify-between">
-                    <h3 className="font-display text-xl font-semibold text-body">{p.name}</h3>
-                    <TelemetryTag live>Live</TelemetryTag>
-                  </div>
-                  <p className="text-sm font-medium text-teal">{p.tagline}</p>
-                  <p className="mt-3 flex-1 text-sm leading-relaxed text-muted">{p.lede.split(" — ")[0]}.</p>
-                  <span className="mt-4 inline-flex items-center gap-1 text-sm text-teal">
-                    View product <ArrowUpRight aria-hidden className="h-3.5 w-3.5" />
-                  </span>
-                </GlassCard>
-              </Link>
-            </Reveal>
-          ))}
-        </div>
-        <div className="mt-10 text-center">
-          <Button href="/products" variant="ghost">All 9 products</Button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------- Why Invexal ---------- */
-export function WhyInvexal() {
-  return (
-    <section className="py-24">
-      <div className="mx-auto max-w-7xl px-6">
-        <SectionHeading
-          eyebrow="Why Invexal"
-          title="A decade of hardware-grade delivery, now with an AI core"
-        />
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {whyInvexal.map((w, i) => (
-            <Reveal key={w.title} delay={(i % 3) * 0.06}>
-              <div className="border-l-2 border-teal/40 pl-5">
-                <h3 className="font-display font-semibold text-body">{w.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted">{w.body}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------- Process ---------- */
+/* ---------- Process (timeline) ---------- */
 export function Process() {
   return (
-    <section className="border-y border-line bg-ink-raised/40 py-24">
+    <section className="border-y border-line bg-ink-raised py-24">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
           eyebrow="How we work"
@@ -282,16 +436,26 @@ export function Process() {
           lede="Every engagement runs the same spine, so you always know what happens next and what it proves."
           center
         />
-        <ol className="grid gap-6 md:grid-cols-5">
-          {processSteps.map((p, i) => (
-            <Reveal key={p.title} delay={i * 0.08}>
-              <li className="relative">
-                <div className="mb-3 font-mono text-telemetry uppercase text-amber">0{i + 1}</div>
-                <h3 className="font-display font-semibold text-body">{p.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted">{p.body}</p>
-              </li>
-            </Reveal>
-          ))}
+        <ol className="relative">
+          <div aria-hidden className="absolute bottom-5 left-5 top-5 w-px bg-line md:hidden" />
+          <TimelineLine orientation="vertical" className="bottom-5 left-5 top-5 w-px md:hidden" />
+          <div aria-hidden className="absolute left-0 right-0 top-5 hidden h-px bg-line md:block" />
+          <TimelineLine orientation="horizontal" className="left-0 right-0 top-5 hidden h-px md:block" />
+          <div className="grid gap-8 md:grid-cols-5">
+            {processSteps.map((p, i) => (
+              <Reveal key={p.title} delay={i * 0.08}>
+                <li className="relative flex gap-4 md:flex-col md:items-center md:gap-0 md:text-center">
+                  <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-teal bg-ink font-mono text-sm font-semibold text-teal md:mb-4">
+                    0{i + 1}
+                  </div>
+                  <div>
+                    <h3 className="font-display font-semibold text-body">{p.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted">{p.body}</p>
+                  </div>
+                </li>
+              </Reveal>
+            ))}
+          </div>
         </ol>
       </div>
     </section>
@@ -313,7 +477,7 @@ export function Testimonials() {
 /* ---------- FAQ ---------- */
 export function HomeFAQ() {
   return (
-    <section className="py-24">
+    <section className="bg-ink-raised py-24">
       <div className="mx-auto max-w-3xl px-6">
         <SectionHeading eyebrow="FAQ" title="Common questions, straight answers" center />
         <Accordion items={homeFaqs} />

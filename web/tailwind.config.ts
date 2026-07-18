@@ -5,15 +5,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#FFFFFF",
-        "ink-raised": "#F3F5F9",
-        line: "rgba(15,23,42,0.10)",
-        glass: "rgba(15,23,42,0.035)",
-        body: "#212529",
-        muted: "#475569",
-        teal: "#1351D8",
-        iris: "#1351D8",
-        amber: "#D97706",
+        // Enterprise 5-color system
+        ink: "#FFFFFF",           // page background (White)
+        "ink-raised": "#EEF6FF",  // alternate section background (Light Blue)
+        navy: "#071C38",          // anchor dark-section background (Deep Navy)
+        line: "rgba(7,28,56,0.10)",
+        glass: "rgba(0,102,255,0.035)",
+        body: "#071C38",          // primary text (Deep Navy)
+        muted: "#4B6079",
+        teal: "#0066FF",          // Primary Blue
+        iris: "#00A8FF",          // Electric Blue (gradient end)
+        amber: "#4CC9F0",         // Cyan Accent (live/signal micro-accent)
       },
       fontFamily: {
         display: ["var(--font-sora)", "sans-serif"],
@@ -26,12 +28,16 @@ const config: Config = {
         telemetry: ["0.6875rem", { lineHeight: "1", letterSpacing: "0.14em" }],
       },
       backgroundImage: {
-        "signal-gradient": "linear-gradient(100deg,#1351D8 0%,#1351D8 100%)",
+        "signal-gradient": "linear-gradient(100deg,#0066FF 0%,#00A8FF 100%)",
         "signal-radial":
-          "radial-gradient(60% 50% at 50% 0%, rgba(19,81,216,0.10) 0%, rgba(19,81,216,0.06) 45%, transparent 100%)",
+          "radial-gradient(60% 50% at 50% 0%, rgba(0,102,255,0.10) 0%, rgba(0,168,255,0.06) 45%, transparent 100%)",
+        "navy-gradient": "linear-gradient(135deg,#071C38 0%,#0A2A54 100%)",
       },
       boxShadow: {
-        glow: "0 0 40px -12px rgba(19,81,216,0.35)",
+        glow: "0 0 40px -12px rgba(0,102,255,0.35)",
+        card: "0 8px 24px -8px rgba(7,28,56,0.12)",
+        "card-lg": "0 16px 40px -12px rgba(7,28,56,0.16)",
+        "card-xl": "0 24px 60px -20px rgba(7,28,56,0.22)",
       },
       keyframes: {
         marquee: { from: { transform: "translateX(0)" }, to: { transform: "translateX(-50%)" } },

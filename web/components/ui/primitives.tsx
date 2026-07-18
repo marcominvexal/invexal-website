@@ -12,7 +12,7 @@ export function Button({
   className,
 }: {
   href: string;
-  variant?: "primary" | "secondary" | "ghost";
+  variant?: "primary" | "secondary" | "ghost" | "inverse";
   children: ReactNode;
   className?: string;
 }) {
@@ -25,6 +25,8 @@ export function Button({
     primary: "bg-signal-gradient text-ink shadow-glow before:bg-body after:bg-body",
     secondary: "border border-line bg-glass text-body backdrop-blur before:bg-teal after:bg-teal hover:text-ink hover:border-teal/60",
     ghost: "px-0 text-teal hover:text-body before:hidden after:hidden",
+    /** For use on colored/navy backgrounds — solid white pill, ink-blue text. */
+    inverse: "bg-ink text-teal shadow-card before:bg-white/90 after:bg-white/90",
   };
   return (
     <Link href={href} className={cn(base, variants[variant], className)}>
@@ -75,7 +77,7 @@ export function GlassCard({
   return (
     <Tag
       className={cn(
-        "gradient-border rounded-2xl border border-line bg-glass p-6 backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:shadow-glow",
+        "rounded-2xl border border-line bg-ink p-6 shadow-card transition duration-200 hover:-translate-y-1 hover:border-teal/40 hover:shadow-glow",
         className
       )}
     >
@@ -118,17 +120,20 @@ export function SectionHeading({
   title,
   lede,
   center = false,
+  dark = false,
 }: {
   eyebrow: string;
   title: string;
   lede?: string;
   center?: boolean;
+  /** Use on dark/navy section backgrounds — swaps text colors for contrast. */
+  dark?: boolean;
 }) {
   return (
     <div className={cn("mb-12 max-w-3xl", center && "mx-auto text-center")}>
-      <TelemetryTag className="mb-4 block">{eyebrow}</TelemetryTag>
-      <h2 className="font-display text-display font-semibold text-body">{title}</h2>
-      {lede && <p className="mt-4 text-lg leading-relaxed text-muted">{lede}</p>}
+      <TelemetryTag className={cn("mb-4 block", dark && "text-teal")}>{eyebrow}</TelemetryTag>
+      <h2 className={cn("font-display text-display font-semibold", dark ? "text-white" : "text-body")}>{title}</h2>
+      {lede && <p className={cn("mt-4 text-lg leading-relaxed", dark ? "text-white/65" : "text-muted")}>{lede}</p>}
     </div>
   );
 }
