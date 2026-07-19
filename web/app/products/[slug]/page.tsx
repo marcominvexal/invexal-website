@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { products, getProduct } from "@/lib/data/products";
 import { industries } from "@/lib/data/industries";
 import { buildMetadata, JsonLd, breadcrumbJsonLd, productJsonLd, faqJsonLd } from "@/lib/seo";
-import { PageHero, CardGrid, PillList, Checklist, RelatedLinks, FAQSection } from "@/components/templates/blocks";
+import { PageHero, CardGrid, PillList, Checklist, RelatedLinks, FAQSection, DemoVideoBand } from "@/components/templates/blocks";
 import CTABand from "@/components/layout/CTABand";
 
 export function generateStaticParams() {
@@ -54,6 +54,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         primaryCta={{ label: `Book a ${p.name} demo`, href: "/book-a-demo" }}
         image={{ src: productPhotos[p.slug], alt: p.name }}
       />
+      <DemoVideoBand slug={p.slug} />
       <CardGrid eyebrow="Features" title="What's in the platform" items={p.features} />
       <PillList eyebrow="Deployment" title="How it runs" items={p.deployment} />
       <PillList eyebrow="Integrations" title="What it connects to" items={p.integrations} />

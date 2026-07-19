@@ -89,7 +89,13 @@ body {
   .animate-marquee,
   .animate-pulseDot,
   .animate-lattice,
-  .animate-drift {
+  .animate-drift,
+  .animate-orbitSpin,
+  .animate-orbitSpinReverse,
+  .animate-detectionDrift,
+  .animate-scanSweep,
+  .animate-kenburns,
+  .animate-fadeInUp {
     animation: none !important;
   }
   *,

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { buildMetadata, JsonLd, breadcrumbJsonLd } from "@/lib/seo";
 import { services } from "@/lib/data/services";
-import { PageHero } from "@/components/templates/blocks";
+import { PageHero, DemoVideoShowcase } from "@/components/templates/blocks";
 import CTABand from "@/components/layout/CTABand";
 import { GlassCard, TelemetryTag, SectionHeading } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
@@ -25,6 +25,10 @@ export default function ServicesPage() {
         title="From AI strategy to systems in production."
         lede="Eighteen disciplines organized around one promise: measurable outcomes on your infrastructure, delivered through the same assess-pilot-deploy-scale spine every time."
         image={{ src: "/photos/category-ai-data.jpg", alt: "AI and data engineering" }}
+      />
+      <DemoVideoShowcase
+        slugs={["computer-vision", "industrial-iot", "aiot-development"]}
+        lede="A sample of the disciplines above, running on real footage and live telemetry."
       />
       {cats.map((cat) => (
         <section key={cat} className="py-16">

@@ -1,7 +1,11 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { GlassCard, SectionHeading, TelemetryTag, Button, PhotoFrame } from "@/components/ui/primitives";
 import { Reveal, Accordion } from "@/components/ui/motion";
 import type { FAQ } from "@/lib/data/types";
+import { ProductVideoCard } from "@/components/media/ProductVideoCard";
+import { TelemetryVideoCard } from "@/components/media/TelemetryVideoCard";
+import { demoVideoBySlug, type DemoVideoEntry } from "@/lib/data/demoVideos";
 
 /* ---------- Page hero ---------- */
 export function PageHero({
@@ -40,7 +44,7 @@ export function PageHero({
   if (image) {
     return (
       <section className="signal-lattice relative overflow-hidden pb-20 pt-40">
-        <div aria-hidden className="pointer-events-none absolute -top-40 left-1/2 h-[28rem] w-[48rem] -translate-x-1/2 bg-signal-radial opacity-50 blur-2xl" />
+        <div aria-hidden className="animate-drift pointer-events-none absolute -top-40 left-1/2 h-[28rem] w-[48rem] -translate-x-1/2 bg-signal-radial opacity-50 blur-2xl" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 lg:grid-cols-2">
           <div>{copy}</div>
           <Reveal delay={0.2} className="hidden lg:block">
@@ -97,10 +101,12 @@ export function PillList({ eyebrow, title, items }: { eyebrow: string; title: st
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading eyebrow={eyebrow} title={title} />
         <ul className="flex flex-wrap gap-3">
-          {items.map((it) => (
-            <li key={it} className="rounded-full border border-line bg-glass px-4 py-2 text-sm text-body backdrop-blur">
-              {it}
-            </li>
+          {items.map((it, i) => (
+            <Reveal key={it} delay={(i % 8) * 0.04}>
+              <li className="rounded-full border border-line bg-glass px-4 py-2 text-sm text-body backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:border-teal/40 hover:shadow-glow">
+                {it}
+              </li>
+            </Reveal>
           ))}
         </ul>
       </div>
@@ -115,11 +121,13 @@ export function Checklist({ eyebrow, title, items }: { eyebrow: string; title: s
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading eyebrow={eyebrow} title={title} />
         <ul className="grid gap-4 md:grid-cols-2">
-          {items.map((b) => (
-            <li key={b} className="flex gap-3">
-              <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-teal" />
-              <span className="text-muted">{b}</span>
-            </li>
+          {items.map((b, i) => (
+            <Reveal key={b} delay={(i % 6) * 0.05}>
+              <li className="flex gap-3">
+                <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-teal animate-pulseDot" />
+                <span className="text-muted">{b}</span>
+              </li>
+            </Reveal>
           ))}
         </ul>
       </div>
@@ -143,12 +151,18 @@ export function RelatedLinks({
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading eyebrow={eyebrow} title={title} />
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {links.map((l) => (
-            <li key={l.href}>
-              <Link href={l.href} className="block rounded-xl border border-line bg-glass px-5 py-4 text-body backdrop-blur transition hover:border-teal/40">
-                {l.name}
-              </Link>
-            </li>
+          {links.map((l, i) => (
+            <Reveal key={l.href} delay={(i % 6) * 0.05}>
+              <li>
+                <Link
+                  href={l.href}
+                  className="group flex items-center justify-between rounded-xl border border-line bg-glass px-5 py-4 text-body backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:border-teal/40 hover:shadow-glow"
+                >
+                  {l.name}
+                  <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-teal transition-transform duration-300 group-hover:translate-x-1" />
+                </Link>
+              </li>
+            </Reveal>
           ))}
         </ul>
       </div>
@@ -164,6 +178,61 @@ export function FAQSection({ items }: { items: FAQ[] }) {
       <div className="mx-auto max-w-3xl px-6">
         <SectionHeading eyebrow="FAQ" title="Questions we hear most" center />
         <Accordion items={items} />
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Demo video band ---------- */
+/** Renders nothing when `slug` has no matching entry in demoVideoBySlug — safe
+ * to drop into every detail page unconditionally rather than gating per page. */
+export function DemoVideoBand({ slug }: { slug: string }) {
+  const entry = demoVideoBySlug[slug];
+  if (!entry) return null;
+
+  return (
+    <section className="border-y border-line bg-ink-raised py-20">
+      <div className="mx-auto max-w-2xl px-6">
+        <SectionHeading eyebrow="See it in action" title="Live on real footage, not a mockup" center />
+        {entry.kind === "detection" ? (
+          <ProductVideoCard card={entry.card} index={0} />
+        ) : (
+          <TelemetryVideoCard card={entry.card} index={0} />
+        )}
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Demo video showcase (hub pages) ---------- */
+/** A small "see it in action" grid for hub/index pages — pass the page slugs
+ * (solution, product, industry, or aliased service slugs) whose footage you
+ * want featured; entries with no match in demoVideoBySlug are skipped. */
+export function DemoVideoShowcase({
+  slugs,
+  title = "See it in action",
+  lede,
+}: {
+  slugs: string[];
+  title?: string;
+  lede?: string;
+}) {
+  const entries = slugs.map((slug) => demoVideoBySlug[slug]).filter((e): e is DemoVideoEntry => Boolean(e));
+  if (!entries.length) return null;
+
+  return (
+    <section className="border-y border-line bg-ink-raised py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <SectionHeading eyebrow="Live footage" title={title} lede={lede} />
+        <div className="grid gap-6 md:grid-cols-2">
+          {entries.map((entry, i) =>
+            entry.kind === "detection" ? (
+              <ProductVideoCard key={entry.card.slug} card={entry.card} index={i} />
+            ) : (
+              <TelemetryVideoCard key={entry.card.slug} card={entry.card} index={i} />
+            )
+          )}
+        </div>
       </div>
     </section>
   );

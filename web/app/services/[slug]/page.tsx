@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { services, getService } from "@/lib/data/services";
 import { industries } from "@/lib/data/industries";
 import { buildMetadata, JsonLd, breadcrumbJsonLd, serviceJsonLd, faqJsonLd } from "@/lib/seo";
-import { PageHero, CardGrid, PillList, Checklist, RelatedLinks, FAQSection } from "@/components/templates/blocks";
+import { PageHero, CardGrid, PillList, Checklist, RelatedLinks, FAQSection, DemoVideoBand } from "@/components/templates/blocks";
 import CTABand from "@/components/layout/CTABand";
 import { SectionHeading } from "@/components/ui/primitives";
 
@@ -48,6 +48,8 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         lede={s.lede}
         image={{ src: categoryPhotos[s.category], alt: s.category }}
       />
+
+      <DemoVideoBand slug={s.slug} />
 
       <section className="border-y border-line bg-ink-raised/40 py-20">
         <div className="mx-auto max-w-4xl px-6">

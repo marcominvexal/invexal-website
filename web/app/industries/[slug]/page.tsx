@@ -3,7 +3,7 @@ import { industries, getIndustry } from "@/lib/data/industries";
 import { solutions } from "@/lib/data/solutions";
 import { products } from "@/lib/data/products";
 import { buildMetadata, JsonLd, breadcrumbJsonLd, faqJsonLd } from "@/lib/seo";
-import { PageHero, CardGrid, Checklist, RelatedLinks, FAQSection } from "@/components/templates/blocks";
+import { PageHero, CardGrid, Checklist, RelatedLinks, FAQSection, DemoVideoBand } from "@/components/templates/blocks";
 import CTABand from "@/components/layout/CTABand";
 
 export function generateStaticParams() {
@@ -61,6 +61,7 @@ export default async function IndustryPage({ params }: { params: Promise<{ slug:
         lede={ind.lede}
         image={industryPhotos[ind.slug] ? { src: industryPhotos[ind.slug], alt: `${ind.name} deployment` } : undefined}
       />
+      <DemoVideoBand slug={ind.slug} />
       <CardGrid eyebrow="The problems" title={`What holds ${ind.name.toLowerCase()} back`} items={ind.painPoints} columns={2} />
       <RelatedLinks eyebrow="Solution stack" title="What we deploy here" links={solutionLinks} />
       <RelatedLinks eyebrow="Products" title="Platforms behind the stack" links={productLinks} />

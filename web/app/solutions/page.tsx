@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { buildMetadata, JsonLd, breadcrumbJsonLd } from "@/lib/seo";
 import { solutions, solutionGroups } from "@/lib/data/solutions";
-import { PageHero } from "@/components/templates/blocks";
+import { PageHero, DemoVideoShowcase } from "@/components/templates/blocks";
 import CTABand from "@/components/layout/CTABand";
 import { GlassCard, TelemetryTag, SectionHeading } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
@@ -23,6 +23,10 @@ export default function SolutionsPage() {
         title="Ready-to-deploy intelligence for specific problems."
         lede="Each solution is a proven deck — models, hardware options, integrations, and KPIs — deployable as a pilot in weeks."
         image={{ src: "/photos/group-vision-ai.jpg", alt: "Vision AI monitoring" }}
+      />
+      <DemoVideoShowcase
+        slugs={["people-counting", "environmental-monitoring", "energy-monitoring"]}
+        lede="A sample of these solutions running on real footage and live sensor telemetry — not mockups."
       />
       {solutionGroups.map((group) => (
         <section key={group} className="py-16">

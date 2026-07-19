@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { buildMetadata, JsonLd, breadcrumbJsonLd } from "@/lib/seo";
 import { industries } from "@/lib/data/industries";
-import { PageHero } from "@/components/templates/blocks";
+import { PageHero, DemoVideoShowcase } from "@/components/templates/blocks";
 import CTABand from "@/components/layout/CTABand";
 import { GlassCard, TelemetryTag } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
@@ -23,6 +23,10 @@ export default function IndustriesPage() {
         title="Deployed where work is physical."
         lede="Thirteen industries where cameras, sensors, and agents change the operating numbers — each with a proven solution stack and reference deployments."
         image={{ src: "/photos/industry-manufacturing.jpg", alt: "AI deployed on the plant floor" }}
+      />
+      <DemoVideoShowcase
+        slugs={["agriculture", "retail", "healthcare", "telecommunications"]}
+        lede="The same detection and telemetry stack, deployed across different verticals."
       />
       <section className="py-16">
         <div className="mx-auto grid max-w-7xl gap-6 px-6 sm:grid-cols-2 lg:grid-cols-3">

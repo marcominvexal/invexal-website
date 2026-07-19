@@ -10,9 +10,11 @@ import { stats, testimonials, homeFaqs, whyInvexal, processSteps, capabilities }
 import { services } from "@/lib/data/services";
 import { solutions } from "@/lib/data/solutions";
 import { industries } from "@/lib/data/industries";
-import { products } from "@/lib/data/products";
 import { HeroVisual } from "./HeroVisual";
 import { CapabilityOrbit } from "./CapabilityOrbit";
+import { ProductVideoCard } from "@/components/media/ProductVideoCard";
+import { TelemetryVideoCard } from "@/components/media/TelemetryVideoCard";
+import { videoProducts, telemetryProducts } from "@/lib/data/demoVideos";
 
 /** width/height mirror each logo file's real intrinsic aspect ratio so next/image
  * (and object-contain) render every mark at a consistent height without squishing
@@ -282,68 +284,7 @@ export function IndustriesGrid() {
   );
 }
 
-/* ---------- Products (dashboard mockup cards) ---------- */
-function MiniBars({ seed }: { seed: number }) {
-  const bars = Array.from({ length: 9 }, (_, i) => 28 + ((seed * (i + 3) * 37) % 62));
-  return (
-    <div className="flex h-16 items-end gap-1.5 rounded-lg border border-line bg-ink px-3 pb-3 pt-4">
-      {bars.map((h, i) => (
-        <div key={i} className="flex-1 rounded-sm bg-signal-gradient" style={{ height: `${h}%`, opacity: 0.4 + (i / bars.length) * 0.6 }} />
-      ))}
-    </div>
-  );
-}
-
-function MiniGauge({ value }: { value: number }) {
-  const c = 2 * Math.PI * 26;
-  return (
-    <div className="flex h-16 items-center justify-center rounded-lg border border-line bg-ink">
-      <svg width="52" height="52" viewBox="0 0 60 60" className="-rotate-90">
-        <circle cx="30" cy="30" r="26" fill="none" stroke="currentColor" strokeWidth="5" className="text-line" />
-        <circle
-          cx="30" cy="30" r="26" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round"
-          className="text-teal" strokeDasharray={c} strokeDashoffset={c - (value / 100) * c}
-        />
-      </svg>
-    </div>
-  );
-}
-
-function MiniHeatmap({ seed }: { seed: number }) {
-  const cells = Array.from({ length: 24 }, (_, i) => (seed * (i + 2) * 53) % 100);
-  return (
-    <div className="grid h-16 grid-cols-8 gap-1 rounded-lg border border-line bg-ink p-2">
-      {cells.map((v, i) => (
-        <div key={i} className="rounded-[2px] bg-teal" style={{ opacity: 0.15 + (v / 100) * 0.75 }} />
-      ))}
-    </div>
-  );
-}
-
-function MiniCameraFeed({ src }: { src: string }) {
-  return (
-    <div className="relative h-16 overflow-hidden rounded-lg border border-line">
-      <Image src={src} alt="" fill sizes="200px" className="object-cover" />
-      <div className="absolute left-3 top-3 h-6 w-8 rounded-sm border-2 border-teal" />
-      <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-navy/80 px-1.5 py-0.5 font-mono text-[8px] uppercase text-white">
-        <span className="h-1 w-1 rounded-full bg-amber animate-pulseDot" /> Live
-      </span>
-    </div>
-  );
-}
-
-const productVisuals: Record<string, "camera" | "gauge" | "heatmap" | "bars"> = {
-  visionwatch: "camera",
-  fueliq: "gauge",
-  "worker-safety": "heatmap",
-  "asset-tracking": "bars",
-  ecotrack: "gauge",
-  "smart-metering": "bars",
-};
-
 export function ProductsShowcase() {
-  const featured = ["visionwatch", "fueliq", "worker-safety", "asset-tracking", "ecotrack", "smart-metering"];
-  const items = featured.map((slug) => products.find((p) => p.slug === slug)!).filter(Boolean);
   return (
     <section className="border-y border-line bg-ink-raised py-24">
       <div className="mx-auto max-w-7xl px-6">
@@ -352,39 +293,13 @@ export function ProductsShowcase() {
           title="Platforms, not one-off projects"
           lede="Nine production platforms you can demo this week — then tailor to your estate."
         />
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {items.map((p, i) => {
-            const visual = productVisuals[p.slug] ?? "bars";
-            return (
-              <Reveal key={p.slug} delay={(i % 3) * 0.06}>
-                <Link href={`/products/${p.slug}`} className="block h-full">
-                  <GlassCard className="flex h-full flex-col overflow-hidden !p-0">
-                    <div className="flex items-center gap-1.5 border-b border-line bg-ink-raised px-4 py-2.5">
-                      <span className="h-2 w-2 rounded-full bg-line" />
-                      <span className="h-2 w-2 rounded-full bg-line" />
-                      <span className="h-2 w-2 rounded-full bg-line" />
-                      <span className="ml-2 font-mono text-[10px] uppercase tracking-wide text-muted">{p.name} console</span>
-                    </div>
-                    <div className="p-6">
-                      {visual === "camera" && <MiniCameraFeed src="/photos/industry-retail.jpg" />}
-                      {visual === "gauge" && <MiniGauge value={70 + i * 5} />}
-                      {visual === "heatmap" && <MiniHeatmap seed={i + 1} />}
-                      {visual === "bars" && <MiniBars seed={i + 1} />}
-                      <div className="mb-2 mt-4 flex items-center justify-between">
-                        <h3 className="font-display text-xl font-semibold text-body">{p.name}</h3>
-                        <TelemetryTag live>Live</TelemetryTag>
-                      </div>
-                      <p className="text-sm font-medium text-teal">{p.tagline}</p>
-                      <p className="mt-3 text-sm leading-relaxed text-muted">{p.lede.split(" — ")[0]}.</p>
-                      <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-teal">
-                        View product <ArrowUpRight aria-hidden className="h-3.5 w-3.5" />
-                      </span>
-                    </div>
-                  </GlassCard>
-                </Link>
-              </Reveal>
-            );
-          })}
+        <div className="grid gap-6 md:grid-cols-2">
+          {videoProducts.map((card, i) => (
+            <ProductVideoCard key={card.slug} card={card} index={i} />
+          ))}
+          {telemetryProducts.map((card, i) => (
+            <TelemetryVideoCard key={card.slug} card={card} index={videoProducts.length + i} />
+          ))}
         </div>
         <div className="mt-10 text-center">
           <Button href="/products" variant="ghost">All 9 products</Button>

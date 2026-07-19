@@ -101,15 +101,57 @@ export function CapabilityOrbit({ capabilities }: { capabilities: { name: string
 
   return (
     <div className="relative mx-auto aspect-square max-w-2xl">
-      <svg className="absolute inset-0 h-full w-full" aria-hidden>
+      {/* Ring spins slowly like a wheel; pausing on hover lets the hovered node hold still to zoom. */}
+      <div
+        className="absolute inset-0 animate-orbitSpin"
+        style={{ animationPlayState: active !== null ? "paused" : "running" }}
+      >
+        <svg className="absolute inset-0 h-full w-full" aria-hidden>
+          {nodes.map((n, i) => (
+            <line
+              key={n.name}
+              x1="50%" y1="50%" x2={`${n.left}%`} y2={`${n.top}%`}
+              stroke="currentColor" className={i === active ? "text-teal" : "text-white/15"} strokeWidth={1}
+            />
+          ))}
+        </svg>
+
         {nodes.map((n, i) => (
-          <line
+          <div
             key={n.name}
-            x1="50%" y1="50%" x2={`${n.left}%`} y2={`${n.top}%`}
-            stroke="currentColor" className={i === active ? "text-teal" : "text-white/15"} strokeWidth={1}
-          />
+            className="absolute w-32 -translate-x-1/2 -translate-y-1/2 text-center"
+            style={{ top: `${n.top}%`, left: `${n.left}%` }}
+          >
+            {/* Counter-spins at the same rate as the ring so icon + label stay upright while orbiting. */}
+            <div
+              className="animate-orbitSpinReverse"
+              style={{ animationPlayState: active !== null ? "paused" : "running" }}
+            >
+              <Reveal delay={i * 0.06}>
+                <button
+                  type="button"
+                  onMouseEnter={() => setActive(i)}
+                  onMouseLeave={() => setActive(null)}
+                  onFocus={() => setActive(i)}
+                  onBlur={() => setActive(null)}
+                  className="group w-full text-center"
+                >
+                  <div
+                    className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur transition-all duration-300 ease-out group-hover:scale-125 group-hover:border-teal/60 group-hover:bg-white/20 group-hover:shadow-glow group-focus-visible:scale-125 group-focus-visible:border-teal/60 ${
+                      i === active ? "scale-125 border-teal/60 bg-white/20 shadow-glow" : ""
+                    }`}
+                  >
+                    <n.icon aria-hidden className="h-5 w-5 text-teal" />
+                  </div>
+                  <div className="mt-2 font-display text-sm font-semibold text-white transition-transform duration-300 group-hover:scale-110">
+                    {n.name}
+                  </div>
+                </button>
+              </Reveal>
+            </div>
+          </div>
         ))}
-      </svg>
+      </div>
 
       <div className="absolute left-1/2 top-1/2 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 text-center backdrop-blur">
         {shown ? (
@@ -124,30 +166,6 @@ export function CapabilityOrbit({ capabilities }: { capabilities: { name: string
           </>
         )}
       </div>
-
-      {nodes.map((n, i) => (
-        <div
-          key={n.name}
-          className="absolute w-32 -translate-x-1/2 -translate-y-1/2 text-center"
-          style={{ top: `${n.top}%`, left: `${n.left}%` }}
-        >
-          <Reveal delay={i * 0.06}>
-            <button
-              type="button"
-              onMouseEnter={() => setActive(i)}
-              onMouseLeave={() => setActive(null)}
-              onFocus={() => setActive(i)}
-              onBlur={() => setActive(null)}
-              className="group w-full text-center"
-            >
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur transition group-hover:border-teal/60 group-hover:bg-white/20">
-                <n.icon aria-hidden className="h-5 w-5 text-teal" />
-              </div>
-              <div className="mt-2 font-display text-sm font-semibold text-white">{n.name}</div>
-            </button>
-          </Reveal>
-        </div>
-      ))}
     </div>
   );
 }

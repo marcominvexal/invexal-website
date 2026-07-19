@@ -5,7 +5,7 @@ import { getService } from "@/lib/data/services";
 import { getProduct } from "@/lib/data/products";
 import { industries } from "@/lib/data/industries";
 import { buildMetadata, JsonLd, breadcrumbJsonLd, serviceJsonLd, faqJsonLd } from "@/lib/seo";
-import { PageHero, PillList, Checklist, RelatedLinks, FAQSection } from "@/components/templates/blocks";
+import { PageHero, PillList, Checklist, RelatedLinks, FAQSection, DemoVideoBand } from "@/components/templates/blocks";
 import CTABand from "@/components/layout/CTABand";
 import { SectionHeading, GlassCard, TelemetryTag } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
@@ -55,6 +55,8 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
         lede={s.lede}
         image={{ src: groupPhotos[s.group], alt: s.group }}
       />
+
+      <DemoVideoBand slug={s.slug} />
 
       <PillList eyebrow="Capabilities" title="What the solution does" items={s.capabilities} />
 

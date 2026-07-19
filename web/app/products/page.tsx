@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { buildMetadata, JsonLd, breadcrumbJsonLd } from "@/lib/seo";
 import { products } from "@/lib/data/products";
-import { PageHero } from "@/components/templates/blocks";
+import { PageHero, DemoVideoShowcase } from "@/components/templates/blocks";
 import CTABand from "@/components/layout/CTABand";
 import { GlassCard, TelemetryTag } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
@@ -23,6 +23,10 @@ export default function ProductsPage() {
         title="Platforms, not one-off projects."
         lede="Nine production platforms you can demo this week — each battle-tested across real deployments and tailored to your estate during rollout."
         image={{ src: "/photos/hub-products.jpg", alt: "IoT device and platform" }}
+      />
+      <DemoVideoShowcase
+        slugs={["visionwatch", "fueliq", "smart-metering", "vehicle-tracking"]}
+        lede="Four of the nine platforms, running live — not renders."
       />
       <section className="py-16">
         <div className="mx-auto grid max-w-7xl gap-6 px-6 md:grid-cols-2 lg:grid-cols-3">

@@ -108,7 +108,7 @@ export function PhotoFrame({
         fill
         priority={priority}
         sizes={sizes}
-        className="object-cover"
+        className="animate-kenburns object-cover"
       />
     </div>
   );
