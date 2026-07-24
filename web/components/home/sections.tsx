@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 import {
   Eye, Bot, Sparkles, TrendingUp, MessageSquareText, Cpu, Boxes, Workflow,
   ArrowUpRight,
@@ -85,9 +86,9 @@ export function TrustedBy() {
             {[...clientLogos, ...clientLogos].map((c, i) => (
               <div
                 key={`${c.name}-${i}`}
-                className="flex h-24 min-w-[160px] shrink-0 items-center justify-center rounded-2xl border border-line bg-glass px-8 shadow-card transition duration-200 hover:-translate-y-1 hover:border-teal/40 hover:shadow-glow"
+                className="flex h-32 w-56 shrink-0 items-center justify-center rounded-2xl border border-line bg-glass px-8 shadow-card transition duration-200 hover:-translate-y-1 hover:border-teal/40 hover:shadow-glow"
               >
-                <Image src={c.src} alt={c.name} width={c.w} height={c.h} className="h-12 w-auto object-contain" />
+                <Image src={c.src} alt={c.name} width={c.w} height={c.h} className="h-20 w-auto max-w-full object-contain" />
               </div>
             ))}
           </div>
@@ -322,14 +323,27 @@ export function WhyInvexal() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {whyInvexal.map((w, i) => {
             const Icon = whyIcons[i % whyIcons.length];
+            const inverted = i % 2 === 1;
             return (
               <Reveal key={w.title} delay={(i % 3) * 0.06}>
-                <GlassCard className="h-full">
-                  <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-signal-gradient text-ink">
+                <GlassCard
+                  className={cn(
+                    "h-full",
+                    inverted && "border-transparent bg-signal-gradient shadow-glow hover:border-transparent hover:shadow-card-xl"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "mb-4 flex h-11 w-11 items-center justify-center rounded-lg",
+                      inverted ? "bg-ink text-teal" : "bg-signal-gradient text-ink"
+                    )}
+                  >
                     <Icon aria-hidden className="h-5 w-5" />
                   </span>
-                  <h3 className="font-display font-semibold text-body">{w.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">{w.body.split(". ")[0]}.</p>
+                  <h3 className={cn("font-display font-semibold", inverted ? "text-white" : "text-body")}>{w.title}</h3>
+                  <p className={cn("mt-2 text-sm leading-relaxed", inverted ? "text-white/75" : "text-muted")}>
+                    {w.body.split(". ")[0]}.
+                  </p>
                 </GlassCard>
               </Reveal>
             );
@@ -340,32 +354,38 @@ export function WhyInvexal() {
   );
 }
 
-/* ---------- Process (timeline) ---------- */
+/* ---------- Process (timeline, royal-blue anchor section) ---------- */
 export function Process() {
   return (
-    <section className="border-y border-line bg-ink-raised py-24">
-      <div className="mx-auto max-w-7xl px-6">
+    <section className="relative overflow-hidden bg-navy-gradient py-24">
+      <div aria-hidden className="pointer-events-none absolute -bottom-40 left-1/2 h-[36rem] w-[56rem] -translate-x-1/2 rounded-full bg-teal/10 blur-[100px]" />
+      <div className="relative mx-auto max-w-7xl px-6">
         <SectionHeading
           eyebrow="How we work"
           title="Assess → Pilot → Deploy → Scale → Operate"
-          lede="Every engagement runs the same spine, so you always know what happens next and what it proves."
+          lede="Every engagement runs the same spine, so you always know what happens next and what it proves. Hover a step for the detail."
           center
+          dark
         />
         <ol className="relative">
-          <div aria-hidden className="absolute bottom-5 left-5 top-5 w-px bg-line md:hidden" />
+          <div aria-hidden className="absolute bottom-5 left-5 top-5 w-px bg-white/15 md:hidden" />
           <TimelineLine orientation="vertical" className="bottom-5 left-5 top-5 w-px md:hidden" />
-          <div aria-hidden className="absolute left-0 right-0 top-5 hidden h-px bg-line md:block" />
+          <div aria-hidden className="absolute left-0 right-0 top-5 hidden h-px bg-white/15 md:block" />
           <TimelineLine orientation="horizontal" className="left-0 right-0 top-5 hidden h-px md:block" />
           <div className="grid gap-8 md:grid-cols-5">
             {processSteps.map((p, i) => (
               <Reveal key={p.title} delay={i * 0.08}>
-                <li className="relative flex gap-4 md:flex-col md:items-center md:gap-0 md:text-center">
-                  <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-teal bg-ink font-mono text-sm font-semibold text-teal md:mb-4">
+                {/* group-hover "pops" the whole step forward and reveals the body detail, which is
+                    collapsed by default on desktop (md:) — always visible on mobile/no-hover. */}
+                <li className="group relative flex gap-4 rounded-2xl transition-all duration-300 hover:z-10 hover:-translate-y-2 md:flex-col md:items-center md:gap-0 md:p-4 md:text-center md:hover:scale-105 md:hover:bg-white/5 md:hover:shadow-card-xl">
+                  <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-teal bg-ink font-mono text-sm font-semibold text-teal transition-transform duration-300 group-hover:scale-110 md:mb-4">
                     0{i + 1}
                   </div>
                   <div>
-                    <h3 className="font-display font-semibold text-body">{p.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted">{p.body}</p>
+                    <h3 className="font-display font-semibold text-white">{p.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-white/70 md:max-h-0 md:overflow-hidden md:opacity-0 md:transition-all md:duration-500 md:group-hover:max-h-40 md:group-hover:opacity-100">
+                      {p.body}
+                    </p>
                   </div>
                 </li>
               </Reveal>

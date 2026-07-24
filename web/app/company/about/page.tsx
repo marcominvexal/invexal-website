@@ -5,6 +5,7 @@ import { SectionHeading, GlassCard, TelemetryTag, PhotoFrame } from "@/component
 import { Reveal, StatCounter } from "@/components/ui/motion";
 import { stats, whyInvexal } from "@/lib/data/site";
 import { MapPin } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const metadata = buildMetadata({
   title: "About Invexal",
@@ -72,15 +73,25 @@ export default function AboutPage() {
         <div className="mx-auto max-w-7xl px-6">
           <SectionHeading eyebrow="Offices" title="Where to find us" />
           <div className="grid gap-6 md:grid-cols-3">
-            {SITE.offices.map((o, i) => (
-              <Reveal key={o.name} delay={i * 0.06}>
-                <GlassCard className="h-full">
-                  <MapPin aria-hidden className="mb-3 h-5 w-5 text-teal" />
-                  <TelemetryTag className="mb-2">{o.name}</TelemetryTag>
-                  <p className="text-sm leading-relaxed text-muted">{`${o.street}, ${o.city}, ${[o.region, o.postal].filter(Boolean).join(" ")}, ${o.country}`}</p>
-                </GlassCard>
-              </Reveal>
-            ))}
+            {SITE.offices.map((o, i) => {
+              const inverted = i % 2 === 1;
+              return (
+                <Reveal key={o.name} delay={i * 0.06}>
+                  <GlassCard
+                    className={cn(
+                      "h-full",
+                      inverted && "border-transparent bg-signal-gradient shadow-glow hover:border-transparent hover:shadow-card-xl"
+                    )}
+                  >
+                    <MapPin aria-hidden className={cn("mb-3 h-5 w-5", inverted ? "text-white" : "text-teal")} />
+                    <TelemetryTag className={cn("mb-2", inverted && "text-white")}>{o.name}</TelemetryTag>
+                    <p className={cn("text-sm leading-relaxed", inverted ? "text-white/75" : "text-muted")}>
+                      {`${o.street}, ${o.city}, ${[o.region, o.postal].filter(Boolean).join(" ")}, ${o.country}`}
+                    </p>
+                  </GlassCard>
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </section>

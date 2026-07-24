@@ -4,6 +4,7 @@ import CTABand from "@/components/layout/CTABand";
 import { GlassCard, TelemetryTag, SectionHeading } from "@/components/ui/primitives";
 import { Reveal, TestimonialCarousel } from "@/components/ui/motion";
 import { testimonials } from "@/lib/data/site";
+import { cn } from "@/lib/utils";
 
 export const metadata = buildMetadata({
   title: "Case Studies",
@@ -57,16 +58,24 @@ export default function CaseStudiesPage() {
       />
       <section className="py-16">
         <div className="mx-auto grid max-w-7xl gap-6 px-6 md:grid-cols-3">
-          {studies.map((s, i) => (
-            <Reveal key={s.title} delay={i * 0.06}>
-              <GlassCard className="flex h-full flex-col">
-                <TelemetryTag className="mb-3">{s.sector}</TelemetryTag>
-                <h2 className="font-display text-lg font-semibold text-body">{s.title}</h2>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{s.summary}</p>
-                <p className="mt-4 text-sm font-medium text-teal">{s.client}</p>
-              </GlassCard>
-            </Reveal>
-          ))}
+          {studies.map((s, i) => {
+            const inverted = i % 2 === 1;
+            return (
+              <Reveal key={s.title} delay={i * 0.06}>
+                <GlassCard
+                  className={cn(
+                    "flex h-full flex-col",
+                    inverted && "border-transparent bg-signal-gradient shadow-glow hover:border-transparent hover:shadow-card-xl"
+                  )}
+                >
+                  <TelemetryTag className={cn("mb-3", inverted && "text-white")}>{s.sector}</TelemetryTag>
+                  <h2 className={cn("font-display text-lg font-semibold", inverted ? "text-white" : "text-body")}>{s.title}</h2>
+                  <p className={cn("mt-2 flex-1 text-sm leading-relaxed", inverted ? "text-white/75" : "text-muted")}>{s.summary}</p>
+                  <p className={cn("mt-4 text-sm font-medium", inverted ? "text-white" : "text-teal")}>{s.client}</p>
+                </GlassCard>
+              </Reveal>
+            );
+          })}
         </div>
       </section>
       <section className="border-t border-line py-24">

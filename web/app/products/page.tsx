@@ -5,6 +5,7 @@ import { PageHero, DemoVideoShowcase } from "@/components/templates/blocks";
 import CTABand from "@/components/layout/CTABand";
 import { GlassCard, TelemetryTag } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
+import { cn } from "@/lib/utils";
 
 export const metadata = buildMetadata({
   title: "AI & IoT Products",
@@ -30,21 +31,31 @@ export default function ProductsPage() {
       />
       <section className="py-16">
         <div className="mx-auto grid max-w-7xl gap-6 px-6 md:grid-cols-2 lg:grid-cols-3">
-          {products.map((p, i) => (
-            <Reveal key={p.slug} delay={(i % 3) * 0.05}>
-              <Link href={`/products/${p.slug}`} className="block h-full">
-                <GlassCard className="flex h-full flex-col">
-                  <div className="mb-1 flex items-center justify-between">
-                    <h2 className="font-display text-xl font-semibold text-body">{p.name}</h2>
-                    <TelemetryTag live>Live</TelemetryTag>
-                  </div>
-                  <p className="text-sm font-medium text-teal">{p.tagline}</p>
-                  <p className="mt-3 flex-1 text-sm leading-relaxed text-muted">{p.lede.split(" — ")[0]}.</p>
-                  <TelemetryTag className="mt-4">View product →</TelemetryTag>
-                </GlassCard>
-              </Link>
-            </Reveal>
-          ))}
+          {products.map((p, i) => {
+            const inverted = i % 2 === 1;
+            return (
+              <Reveal key={p.slug} delay={(i % 3) * 0.05}>
+                <Link href={`/products/${p.slug}`} className="block h-full">
+                  <GlassCard
+                    className={cn(
+                      "flex h-full flex-col",
+                      inverted && "border-transparent bg-signal-gradient shadow-glow hover:border-transparent hover:shadow-card-xl"
+                    )}
+                  >
+                    <div className="mb-1 flex items-center justify-between">
+                      <h2 className={cn("font-display text-xl font-semibold", inverted ? "text-white" : "text-body")}>{p.name}</h2>
+                      <TelemetryTag live className={cn(inverted && "text-white")}>Live</TelemetryTag>
+                    </div>
+                    <p className={cn("text-sm font-medium", inverted ? "text-white" : "text-teal")}>{p.tagline}</p>
+                    <p className={cn("mt-3 flex-1 text-sm leading-relaxed", inverted ? "text-white/75" : "text-muted")}>
+                      {p.lede.split(" — ")[0]}.
+                    </p>
+                    <TelemetryTag className={cn("mt-4", inverted && "text-white")}>View product →</TelemetryTag>
+                  </GlassCard>
+                </Link>
+              </Reveal>
+            );
+          })}
         </div>
       </section>
       <CTABand />

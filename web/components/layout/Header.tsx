@@ -156,7 +156,11 @@ export default function Header() {
   const isActiveSection = (id: MenuKey) =>
     !!id && (pathname === sectionPrefix[id] || pathname.startsWith(`${sectionPrefix[id]}/`));
 
-  const solid = scrolled || open !== null || mobile;
+  // Only the homepage has a dark hero at the very top, which is what makes a
+  // transparent/white-text header legible pre-scroll. Every other page has a
+  // light background there, so the header must default to solid (dark text,
+  // opaque background) or it renders invisible until the user scrolls.
+  const solid = pathname !== "/" || scrolled || open !== null || mobile;
 
   const NavButton = ({ id, label }: { id: MenuKey; label: string }) => {
     const active = isActiveSection(id);

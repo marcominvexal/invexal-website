@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Linkedin, Twitter, Facebook, Instagram, MapPin, Phone, Mail } from "lucide-react";
-import { TelemetryTag, Button } from "@/components/ui/primitives";
+import { TelemetryTag } from "@/components/ui/primitives";
 import NewsletterForm from "@/components/forms/NewsletterForm";
 import { SITE } from "@/lib/seo";
 import { services } from "@/lib/data/services";
@@ -46,7 +46,6 @@ export default function Footer() {
               <span className="ml-3 border-l border-white/20 pl-3 font-display text-xl font-bold text-white">AIoT</span>
             </div>
             <p className="mt-3 max-w-sm text-white/60">Intelligence for the physical world. AI that sees, predicts, and acts.</p>
-            <Button href="/book-a-demo" variant="inverse" className="mt-5">Book a demo</Button>
           </div>
           <div className="lg:text-right">
             <div className="mb-3 font-mono text-telemetry uppercase text-teal">Field notes, occasionally</div>

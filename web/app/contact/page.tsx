@@ -29,17 +29,17 @@ export default function ContactPage() {
             <ContactForm />
           </div>
           <div className="space-y-4 lg:col-span-2">
-            <GlassCard>
-              <TelemetryTag className="mb-3">Direct</TelemetryTag>
+            <GlassCard className="border-transparent bg-signal-gradient shadow-glow hover:border-transparent hover:shadow-card-xl">
+              <TelemetryTag className="mb-3 text-white">Direct</TelemetryTag>
               <div className="space-y-3 text-sm">
-                <a href={`tel:${SITE.phone.replace(/[^+\d]/g, "")}`} className="flex items-center gap-3 text-body hover:text-teal">
-                  <Phone aria-hidden className="h-4 w-4 text-teal" /> {SITE.phone}
+                <a href={`tel:${SITE.phone.replace(/[^+\d]/g, "")}`} className="flex items-center gap-3 text-white hover:text-white/80">
+                  <Phone aria-hidden className="h-4 w-4 text-white" /> {SITE.phone}
                 </a>
-                <a href={`mailto:${SITE.email}`} className="flex items-center gap-3 text-body hover:text-teal">
-                  <Mail aria-hidden className="h-4 w-4 text-teal" /> {SITE.email}
+                <a href={`mailto:${SITE.email}`} className="flex items-center gap-3 text-white hover:text-white/80">
+                  <Mail aria-hidden className="h-4 w-4 text-white" /> {SITE.email}
                 </a>
-                <a href="https://wa.me/971586839220" className="flex items-center gap-3 text-body hover:text-teal">
-                  <MessageCircle aria-hidden className="h-4 w-4 text-teal" /> WhatsApp +971 58 683 9220
+                <a href="https://wa.me/971586839220" className="flex items-center gap-3 text-white hover:text-white/80">
+                  <MessageCircle aria-hidden className="h-4 w-4 text-white" /> WhatsApp +971 58 683 9220
                 </a>
               </div>
             </GlassCard>

@@ -5,6 +5,7 @@ import { PageHero, DemoVideoShowcase } from "@/components/templates/blocks";
 import CTABand from "@/components/layout/CTABand";
 import { GlassCard, TelemetryTag } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
+import { cn } from "@/lib/utils";
 
 export const metadata = buildMetadata({
   title: "Industries We Serve",
@@ -30,17 +31,27 @@ export default function IndustriesPage() {
       />
       <section className="py-16">
         <div className="mx-auto grid max-w-7xl gap-6 px-6 sm:grid-cols-2 lg:grid-cols-3">
-          {industries.map((ind, i) => (
-            <Reveal key={ind.slug} delay={(i % 3) * 0.05}>
-              <Link href={`/industries/${ind.slug}`} className="block h-full">
-                <GlassCard className="flex h-full flex-col">
-                  <h2 className="font-display text-lg font-semibold text-body">{ind.name}</h2>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{ind.lede.split(" — ")[0].split(". ")[0]}.</p>
-                  <TelemetryTag className="mt-4">Explore →</TelemetryTag>
-                </GlassCard>
-              </Link>
-            </Reveal>
-          ))}
+          {industries.map((ind, i) => {
+            const inverted = i % 2 === 1;
+            return (
+              <Reveal key={ind.slug} delay={(i % 3) * 0.05}>
+                <Link href={`/industries/${ind.slug}`} className="block h-full">
+                  <GlassCard
+                    className={cn(
+                      "flex h-full flex-col",
+                      inverted && "border-transparent bg-signal-gradient shadow-glow hover:border-transparent hover:shadow-card-xl"
+                    )}
+                  >
+                    <h2 className={cn("font-display text-lg font-semibold", inverted ? "text-white" : "text-body")}>{ind.name}</h2>
+                    <p className={cn("mt-2 flex-1 text-sm leading-relaxed", inverted ? "text-white/75" : "text-muted")}>
+                      {ind.lede.split(" — ")[0].split(". ")[0]}.
+                    </p>
+                    <TelemetryTag className={cn("mt-4", inverted && "text-white")}>Explore →</TelemetryTag>
+                  </GlassCard>
+                </Link>
+              </Reveal>
+            );
+          })}
         </div>
       </section>
       <CTABand />

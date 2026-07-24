@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { GlassCard, SectionHeading, TelemetryTag, Button, PhotoFrame } from "@/components/ui/primitives";
 import { Reveal, Accordion } from "@/components/ui/motion";
 import type { FAQ } from "@/lib/data/types";
@@ -43,12 +44,13 @@ export function PageHero({
 
   if (image) {
     return (
-      <section className="signal-lattice relative overflow-hidden pb-20 pt-40">
+      <section className="signal-lattice relative overflow-hidden bg-gradient-to-b from-ink-raised to-ink pb-20 pt-40">
         <div aria-hidden className="animate-drift pointer-events-none absolute -top-40 left-1/2 h-[28rem] w-[48rem] -translate-x-1/2 bg-signal-radial opacity-50 blur-2xl" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 lg:grid-cols-2">
           <div>{copy}</div>
-          <Reveal delay={0.2} className="hidden lg:block">
-            <PhotoFrame src={image.src} alt={image.alt} priority className="aspect-[4/3]" />
+          <Reveal delay={0.2} className="relative hidden lg:block">
+            <div aria-hidden className="animate-drift absolute -right-5 -top-5 h-full w-full rounded-2xl bg-signal-gradient opacity-90 [animation-delay:-2s]" />
+            <PhotoFrame src={image.src} alt={image.alt} priority className="relative aspect-[4/3]" />
           </Reveal>
         </div>
       </section>
@@ -56,8 +58,8 @@ export function PageHero({
   }
 
   return (
-    <section className="signal-lattice relative overflow-hidden pb-20 pt-40">
-      <div aria-hidden className="pointer-events-none absolute -top-40 left-1/2 h-[28rem] w-[48rem] -translate-x-1/2 bg-signal-radial opacity-50 blur-2xl" />
+    <section className="signal-lattice relative overflow-hidden bg-gradient-to-b from-ink-raised to-ink pb-20 pt-40">
+      <div aria-hidden className="animate-drift pointer-events-none absolute -top-40 left-1/2 h-[28rem] w-[48rem] -translate-x-1/2 bg-signal-radial opacity-50 blur-2xl" />
       <div className="relative mx-auto max-w-4xl px-6">{copy}</div>
     </section>
   );
@@ -80,14 +82,22 @@ export function CardGrid({
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading eyebrow={eyebrow} title={title} />
         <div className={`grid gap-6 md:grid-cols-2 ${columns === 3 ? "lg:grid-cols-3" : ""}`}>
-          {items.map((it, i) => (
-            <Reveal key={it.title} delay={(i % columns) * 0.06}>
-              <GlassCard className="h-full">
-                <h3 className="font-display font-semibold text-body">{it.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted">{it.body}</p>
-              </GlassCard>
-            </Reveal>
-          ))}
+          {items.map((it, i) => {
+            const inverted = i % 2 === 1;
+            return (
+              <Reveal key={it.title} delay={(i % columns) * 0.06}>
+                <GlassCard
+                  className={cn(
+                    "h-full",
+                    inverted && "border-transparent bg-signal-gradient shadow-glow hover:border-transparent hover:shadow-card-xl"
+                  )}
+                >
+                  <h3 className={cn("font-display font-semibold", inverted ? "text-white" : "text-body")}>{it.title}</h3>
+                  <p className={cn("mt-2 text-sm leading-relaxed", inverted ? "text-white/75" : "text-muted")}>{it.body}</p>
+                </GlassCard>
+              </Reveal>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -103,7 +113,8 @@ export function PillList({ eyebrow, title, items }: { eyebrow: string; title: st
         <ul className="flex flex-wrap gap-3">
           {items.map((it, i) => (
             <Reveal key={it} delay={(i % 8) * 0.04}>
-              <li className="rounded-full border border-line bg-glass px-4 py-2 text-sm text-body backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:border-teal/40 hover:shadow-glow">
+              <li className="group flex items-center gap-2 rounded-full border border-teal/20 bg-teal/[0.07] px-4 py-2 text-sm font-medium text-body backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:border-transparent hover:bg-signal-gradient hover:text-white hover:shadow-glow">
+                <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal transition-colors duration-200 group-hover:bg-white" />
                 {it}
               </li>
             </Reveal>
@@ -114,18 +125,24 @@ export function PillList({ eyebrow, title, items }: { eyebrow: string; title: st
   );
 }
 
-/* ---------- Checklist ---------- */
+/* ---------- Checklist (royal-blue anchor section) ---------- */
 export function Checklist({ eyebrow, title, items }: { eyebrow: string; title: string; items: string[] }) {
   return (
-    <section className="border-y border-line bg-ink-raised/40 py-20">
-      <div className="mx-auto max-w-7xl px-6">
-        <SectionHeading eyebrow={eyebrow} title={title} />
+    <section className="relative overflow-hidden bg-navy-gradient py-20">
+      <div aria-hidden className="animate-drift pointer-events-none absolute -bottom-32 right-0 h-[28rem] w-[28rem] rounded-full bg-teal/10 blur-[100px]" />
+      <div className="relative mx-auto max-w-7xl px-6">
+        <SectionHeading eyebrow={eyebrow} title={title} dark />
         <ul className="grid gap-4 md:grid-cols-2">
           {items.map((b, i) => (
             <Reveal key={b} delay={(i % 6) * 0.05}>
-              <li className="flex gap-3">
-                <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-teal animate-pulseDot" />
-                <span className="text-muted">{b}</span>
+              <li className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 transition duration-200 hover:-translate-y-0.5 hover:border-teal/40 hover:bg-white/[0.08]">
+                <span
+                  aria-hidden
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal text-white transition-transform duration-300 group-hover:scale-110"
+                >
+                  <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                </span>
+                <span className="text-white/80">{b}</span>
               </li>
             </Reveal>
           ))}
@@ -151,19 +168,33 @@ export function RelatedLinks({
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading eyebrow={eyebrow} title={title} />
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {links.map((l, i) => (
-            <Reveal key={l.href} delay={(i % 6) * 0.05}>
-              <li>
-                <Link
-                  href={l.href}
-                  className="group flex items-center justify-between rounded-xl border border-line bg-glass px-5 py-4 text-body backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:border-teal/40 hover:shadow-glow"
-                >
-                  {l.name}
-                  <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-teal transition-transform duration-300 group-hover:translate-x-1" />
-                </Link>
-              </li>
-            </Reveal>
-          ))}
+          {links.map((l, i) => {
+            const inverted = i % 2 === 1;
+            return (
+              <Reveal key={l.href} delay={(i % 6) * 0.05}>
+                <li>
+                  <Link
+                    href={l.href}
+                    className={cn(
+                      "group flex items-center justify-between rounded-xl border px-5 py-4 backdrop-blur transition duration-200 hover:-translate-y-0.5",
+                      inverted
+                        ? "border-transparent bg-signal-gradient text-white shadow-card hover:shadow-glow"
+                        : "border-line bg-glass text-body hover:border-teal/40 hover:shadow-glow"
+                    )}
+                  >
+                    {l.name}
+                    <ArrowRight
+                      aria-hidden
+                      className={cn(
+                        "h-4 w-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1",
+                        inverted ? "text-white" : "text-teal"
+                      )}
+                    />
+                  </Link>
+                </li>
+              </Reveal>
+            );
+          })}
         </ul>
       </div>
     </section>

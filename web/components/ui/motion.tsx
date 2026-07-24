@@ -103,22 +103,31 @@ export function StatCounter({
 export function Accordion({ items }: { items: FAQ[] }) {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <div className="divide-y divide-line rounded-2xl border border-line bg-glass backdrop-blur">
+    <div className="space-y-4">
       {items.map((item, i) => {
         const isOpen = open === i;
         return (
-          <div key={i}>
+          <div
+            key={i}
+            className={cn(
+              "overflow-hidden rounded-2xl bg-signal-gradient shadow-card transition-shadow duration-500",
+              isOpen && "shadow-glow"
+            )}
+          >
             <button
-              className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+              className={cn(
+                "flex w-full items-center justify-between gap-4 border-l-2 px-6 py-5 text-left transition-[border-color] duration-500",
+                isOpen ? "border-white" : "border-transparent"
+              )}
               aria-expanded={isOpen}
               aria-controls={`faq-panel-${i}`}
               id={`faq-button-${i}`}
               onClick={() => setOpen(isOpen ? null : i)}
             >
-              <span className="font-medium text-body">{item.q}</span>
+              <span className="font-medium text-white">{item.q}</span>
               <ChevronDown
                 aria-hidden
-                className={cn("h-5 w-5 shrink-0 text-teal transition-transform", isOpen && "rotate-180")}
+                className={cn("h-5 w-5 shrink-0 text-white transition-transform", isOpen && "rotate-180")}
               />
             </button>
             <AnimatePresence initial={false}>
@@ -133,7 +142,7 @@ export function Accordion({ items }: { items: FAQ[] }) {
                   transition={{ duration: 0.24, ease: "easeInOut" }}
                   className="overflow-hidden"
                 >
-                  <p className="px-6 pb-6 leading-relaxed text-muted">{item.a}</p>
+                  <p className="px-6 pb-6 leading-relaxed text-white/80">{item.a}</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -164,40 +173,44 @@ export function TestimonialCarousel({
 
   return (
     <div
-      className="relative mx-auto max-w-3xl"
+      className="relative mx-auto max-w-3xl overflow-hidden rounded-3xl border border-white/10 bg-navy-gradient px-8 py-14 shadow-card-xl md:px-16 md:py-16"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <Quote aria-hidden className="mx-auto mb-6 h-8 w-8 text-teal/60" />
-      <AnimatePresence mode="wait">
-        <motion.blockquote
-          key={index}
-          initial={reduce ? false : { opacity: 0, x: 24 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={reduce ? undefined : { opacity: 0, x: -24 }}
-          transition={{ duration: 0.4 }}
-          className="text-center"
-        >
-          <p className="text-xl leading-relaxed text-body md:text-2xl">“{item.quote}”</p>
-          <footer className="mt-6">
-            <div className="font-medium text-body">{item.name}</div>
-            <div className="mt-1 font-mono text-telemetry uppercase text-muted">{item.role}</div>
-          </footer>
-        </motion.blockquote>
-      </AnimatePresence>
-      <div className="mt-8 flex justify-center gap-2">
-        {items.map((_, i) => (
-          <button
-            key={i}
-            aria-label={`Show testimonial ${i + 1}`}
-            aria-current={i === index}
-            onClick={() => setIndex(i)}
-            className={cn(
-              "h-2 rounded-full transition-all",
-              i === index ? "w-6 bg-teal" : "w-2 bg-line hover:bg-muted"
-            )}
-          />
-        ))}
+      <div aria-hidden className="pointer-events-none absolute -top-24 left-1/2 h-72 w-[36rem] -translate-x-1/2 rounded-full bg-teal/15 blur-[90px]" />
+      <Quote aria-hidden className="pointer-events-none absolute -top-4 left-6 h-24 w-24 text-white/[0.06] md:left-10" />
+      <div className="relative">
+        <AnimatePresence mode="wait">
+          <motion.blockquote
+            key={index}
+            initial={reduce ? false : { opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={reduce ? undefined : { opacity: 0, x: -24 }}
+            transition={{ duration: 0.4 }}
+            className="text-center"
+          >
+            <p className="text-xl leading-relaxed text-white md:text-2xl">“{item.quote}”</p>
+            <footer className="mt-6 flex flex-col items-center gap-1">
+              <span className="mb-2 h-px w-10 bg-teal/50" aria-hidden />
+              <div className="font-medium text-white">{item.name}</div>
+              <div className="font-mono text-telemetry uppercase text-teal">{item.role}</div>
+            </footer>
+          </motion.blockquote>
+        </AnimatePresence>
+        <div className="mt-10 flex justify-center gap-2">
+          {items.map((_, i) => (
+            <button
+              key={i}
+              aria-label={`Show testimonial ${i + 1}`}
+              aria-current={i === index}
+              onClick={() => setIndex(i)}
+              className={cn(
+                "h-2 rounded-full transition-all",
+                i === index ? "w-6 bg-teal" : "w-2 bg-white/20 hover:bg-white/40"
+              )}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
