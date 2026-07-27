@@ -4,19 +4,25 @@ import CTABand from "@/components/layout/CTABand";
 import { SectionHeading, GlassCard, TelemetryTag } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
 
-export const metadata = buildMetadata({
-  title: "Leadership",
-  description:
-    "The team behind Invexal's engineering and delivery — a decade of connected-systems experience across the US, UK, and UAE.",
-  path: "/company/leadership",
-  keywords: ["invexal leadership", "invexal team"],
-});
+export const metadata = {
+  ...buildMetadata({
+    title: "Leadership",
+    description:
+      "The team behind Invexal's engineering and delivery — a decade of connected-systems experience across the US, UK, and UAE.",
+    path: "/company/leadership",
+    keywords: ["invexal leadership", "invexal team"],
+  }),
+  // Noindexed (and dropped from sitemap.ts) until real leader profiles are
+  // populated below — see the [VERIFY] note. Still `follow` so link equity
+  // to /company/about etc. isn't cut off. Remove this once `leaders` is filled in.
+  robots: { index: false, follow: true },
+};
 
 /**
  * [VERIFY] — POPULATE BEFORE LAUNCH.
  * Real names, titles, photos, and bios must come from MARCOM; do not publish
- * this page with placeholders. Until populated, consider removing the route
- * from Footer/sitemap or redirecting to /company/about.
+ * this page with placeholders. Once populated, remove the `robots: noindex`
+ * override above and re-add this route to sitemap.ts.
  */
 const leaders: { name: string; title: string; bio: string }[] = [
   // { name: "…", title: "Chief Executive Officer", bio: "…" },

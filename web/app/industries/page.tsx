@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { buildMetadata, JsonLd, breadcrumbJsonLd } from "@/lib/seo";
+import { buildMetadata, JsonLd, breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
 import { industries } from "@/lib/data/industries";
 import { PageHero, DemoVideoShowcase } from "@/components/templates/blocks";
 import CTABand from "@/components/layout/CTABand";
@@ -18,7 +18,12 @@ export const metadata = buildMetadata({
 export default function IndustriesPage() {
   return (
     <>
-      <JsonLd data={breadcrumbJsonLd([{ name: "Industries", path: "/industries" }])} />
+      <JsonLd
+        data={[
+          breadcrumbJsonLd([{ name: "Industries", path: "/industries" }]),
+          itemListJsonLd(industries.map((i) => ({ name: i.name, path: `/industries/${i.slug}` }))),
+        ]}
+      />
       <PageHero
         eyebrow="Industries"
         title="Deployed where work is physical."

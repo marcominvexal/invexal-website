@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { buildMetadata, JsonLd, breadcrumbJsonLd } from "@/lib/seo";
+import { buildMetadata, JsonLd, breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
 import { solutions, solutionGroups } from "@/lib/data/solutions";
 import { PageHero, DemoVideoShowcase } from "@/components/templates/blocks";
 import CTABand from "@/components/layout/CTABand";
@@ -18,7 +18,12 @@ export const metadata = buildMetadata({
 export default function SolutionsPage() {
   return (
     <>
-      <JsonLd data={breadcrumbJsonLd([{ name: "Solutions", path: "/solutions" }])} />
+      <JsonLd
+        data={[
+          breadcrumbJsonLd([{ name: "Solutions", path: "/solutions" }]),
+          itemListJsonLd(solutions.map((s) => ({ name: s.name, path: `/solutions/${s.slug}` }))),
+        ]}
+      />
       <PageHero
         eyebrow="Solutions"
         title="Ready-to-deploy intelligence for specific problems."

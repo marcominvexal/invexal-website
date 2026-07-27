@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     display: "browser",
     background_color: "#FFFFFF",
-    theme_color: "#FFFFFF",
+    theme_color: "#071C38",
     icons: [{ src: "/brand/invexal-favicon.png", sizes: "270x270", type: "image/png" }],
   };
 }

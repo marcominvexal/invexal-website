@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { buildMetadata, JsonLd, breadcrumbJsonLd } from "@/lib/seo";
+import { buildMetadata, JsonLd, breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
 import { products } from "@/lib/data/products";
 import { PageHero, DemoVideoShowcase } from "@/components/templates/blocks";
 import CTABand from "@/components/layout/CTABand";
@@ -18,7 +18,12 @@ export const metadata = buildMetadata({
 export default function ProductsPage() {
   return (
     <>
-      <JsonLd data={breadcrumbJsonLd([{ name: "Products", path: "/products" }])} />
+      <JsonLd
+        data={[
+          breadcrumbJsonLd([{ name: "Products", path: "/products" }]),
+          itemListJsonLd(products.map((p) => ({ name: p.name, path: `/products/${p.slug}` }))),
+        ]}
+      />
       <PageHero
         eyebrow="Products"
         title="Platforms, not one-off projects."

@@ -76,6 +76,27 @@ export const breadcrumbJsonLd = (items: { name: string; path: string }[]) => ({
   })),
 });
 
+export const websiteJsonLd = () => ({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: SITE.name,
+  url: SITE.url,
+});
+
+/** Listing/hub pages (services, solutions, products, industries) — helps
+ * search engines read the page as a collection rather than undifferentiated
+ * card text, and is eligible for list-style rich results. */
+export const itemListJsonLd = (items: { name: string; path: string }[]) => ({
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  itemListElement: items.map((it, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    name: it.name,
+    url: `${SITE.url}${it.path}`,
+  })),
+});
+
 export const serviceJsonLd = (name: string, description: string, path: string) => ({
   "@context": "https://schema.org",
   "@type": "Service",
@@ -85,14 +106,19 @@ export const serviceJsonLd = (name: string, description: string, path: string) =
   url: `${SITE.url}${path}`,
 });
 
+/** SoftwareApplication rather than Product/Offer — these platforms are
+ * contact-for-pricing enterprise software, not a fixed-price commerce item.
+ * A fabricated $0 Offer would be inaccurate structured data and risks a
+ * Search Console warning rather than helping the listing. */
 export const productJsonLd = (name: string, description: string, path: string) => ({
   "@context": "https://schema.org",
-  "@type": "Product",
+  "@type": "SoftwareApplication",
   name,
   description,
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Cloud, Edge",
   brand: { "@type": "Brand", name: SITE.name },
   url: `${SITE.url}${path}`,
-  offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Contact for enterprise pricing", availability: "https://schema.org/InStock" },
 });
 
 export const faqJsonLd = (faqs: { q: string; a: string }[]) => ({

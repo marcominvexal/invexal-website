@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { buildMetadata, JsonLd, breadcrumbJsonLd } from "@/lib/seo";
+import { buildMetadata, JsonLd, breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
 import { services } from "@/lib/data/services";
 import { PageHero, DemoVideoShowcase } from "@/components/templates/blocks";
 import CTABand from "@/components/layout/CTABand";
@@ -20,7 +20,12 @@ const cats = ["AI & Data", "Intelligent Systems", "Connected Operations"] as con
 export default function ServicesPage() {
   return (
     <>
-      <JsonLd data={breadcrumbJsonLd([{ name: "Services", path: "/services" }])} />
+      <JsonLd
+        data={[
+          breadcrumbJsonLd([{ name: "Services", path: "/services" }]),
+          itemListJsonLd(services.map((s) => ({ name: s.name, path: `/services/${s.slug}` }))),
+        ]}
+      />
       <PageHero
         eyebrow="Services"
         title="From AI strategy to systems in production."

@@ -6,10 +6,12 @@ import { industries } from "@/lib/data/industries";
 import { products } from "@/lib/data/products";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
+  // No lastModified here: this repo has no per-page content-modified
+  // tracking, and stamping every URL with the build time on every deploy is
+  // a fabricated freshness signal that can make Google trust real updates
+  // less over time.
   const entry = (path: string, priority: number): MetadataRoute.Sitemap[number] => ({
     url: `${SITE.url}${path}`,
-    lastModified: now,
     changeFrequency: "monthly",
     priority,
   });
@@ -22,7 +24,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/products", 0.9),
     entry("/case-studies", 0.8),
     entry("/company/about", 0.7),
-    entry("/company/leadership", 0.5),
+    // /company/leadership intentionally omitted — no real leader content yet
+    // (see the page's own [VERIFY] comment); it's noindexed until populated.
     entry("/company/partners", 0.6),
     entry("/company/careers", 0.6),
     entry("/contact", 0.8),
