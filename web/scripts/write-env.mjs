@@ -10,13 +10,14 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const envPath = resolve(root, ".env.local");
 
 const content = `# Invexal local email — do not commit
+# Gmail (SMTP_USER) = send only. Form emails do NOT go to Gmail inbox.
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_SECURE=false
 SMTP_USER=marcominvexal@gmail.com
 SMTP_PASS=cmjbaqeofxveibwt
 SMTP_FROM=marcominvexal@gmail.com
-CONTACT_TO=marcominvexal@gmail.com
+CONTACT_TO=danish.khan@invexal.com
 CONTACT_FORWARD=danish.khan@invexal.com
 CONTACT_CC=waqi.anwer@invexal.com
 `;

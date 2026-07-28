@@ -40,26 +40,33 @@ function parseRecipients(...values: (string | undefined)[]) {
   ];
 }
 
+function isSenderAddress(address: string, senderAddresses: string[]) {
+  const normalized = address.toLowerCase();
+  return senderAddresses.some((sender) => sender.toLowerCase() === normalized);
+}
+
 function smtpConfig() {
   const host = process.env.SMTP_HOST;
   const port = Number(process.env.SMTP_PORT || "587");
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
-  const to = process.env.CONTACT_TO || "marcominvexal@gmail.com";
-  const forward = parseRecipients(process.env.CONTACT_FORWARD || "danish.khan@invexal.com");
+  const forward = parseRecipients(process.env.CONTACT_FORWARD || FORWARD_EMAIL);
   const cc = parseRecipients(process.env.CONTACT_CC || CC_EMAIL);
+  const primaryTo = parseRecipients(process.env.CONTACT_TO || FORWARD_EMAIL);
   const from = process.env.SMTP_FROM || user || "marcominvexal@gmail.com";
+  const senderAddresses = parseRecipients(user, from);
 
   const secure =
     process.env.SMTP_SECURE === "true" ||
     process.env.SMTP_SECURE === "1" ||
     port === 465;
 
-  return { host, port, user, pass, to, forward, cc, from, secure };
+  return { host, port, user, pass, forward, cc, primaryTo, from, senderAddresses, secure };
 }
 
 async function sendContactEmail(data: z.infer<typeof schema>) {
-  const { host, port, user, pass, to, forward, cc, from, secure } = smtpConfig();
+  const { host, port, user, pass, forward, cc, primaryTo, from, senderAddresses, secure } =
+    smtpConfig();
 
   if (!host || !user || !pass) {
     throw new Error(
@@ -111,17 +118,37 @@ async function sendContactEmail(data: z.infer<typeof schema>) {
     html,
   };
 
-  const forwardTargets = [
-    ...new Set([FORWARD_EMAIL, ...forward].filter((addr) => addr.toLowerCase() !== to.toLowerCase())),
+  const toTargets = [
+    ...new Set(
+      [...primaryTo, FORWARD_EMAIL, ...forward].filter(
+        (addr) => !isSenderAddress(addr, senderAddresses)
+      )
+    ),
   ];
-  const ccTargets = [...new Set([CC_EMAIL, ...cc].filter((addr) => !forwardTargets.some((f) => f.toLowerCase() === addr.toLowerCase()) && addr.toLowerCase() !== to.toLowerCase()))];
-  const recipients = [...new Set([to, ...forwardTargets])];
+  const ccTargets = [
+    ...new Set(
+      [CC_EMAIL, ...cc].filter(
+        (addr) =>
+          !isSenderAddress(addr, senderAddresses) &&
+          !toTargets.some((toAddr) => toAddr.toLowerCase() === addr.toLowerCase())
+      )
+    ),
+  ];
 
-  console.info("[contact] sending", { to: recipients, cc: ccTargets, subject });
+  if (!toTargets.length) {
+    throw new Error("No recipients configured. Set CONTACT_TO or CONTACT_FORWARD in env.");
+  }
+
+  console.info("[contact] sending", {
+    from: senderAddresses[0],
+    to: toTargets,
+    cc: ccTargets,
+    subject,
+  });
 
   const info = await transporter.sendMail({
     ...mail,
-    to: recipients.join(", "),
+    to: toTargets.join(", "),
     cc: ccTargets.length ? ccTargets.join(", ") : undefined,
   });
   if (!info.messageId || (info.rejected?.length ?? 0) > 0) {
@@ -130,7 +157,8 @@ async function sendContactEmail(data: z.infer<typeof schema>) {
 
   console.info("[contact] email sent", {
     messageId: info.messageId,
-    to: recipients,
+    from: senderAddresses[0],
+    to: toTargets,
     cc: ccTargets,
     accepted: info.accepted,
     rejected: info.rejected,
@@ -168,7 +196,7 @@ export async function POST(req: Request) {
     const badAuth = /Invalid login|Incorrect authentication|EAUTH/i.test(message);
 
     let error =
-      "We could not send your message right now. Please email marcominvexal@gmail.com directly, or try again.";
+      "We could not send your message right now. Please email danish.khan@invexal.com directly, or try again.";
     if (notConfigured) {
       error =
         "Email delivery is not configured on this server yet. Add SMTP_HOST, SMTP_USER, and SMTP_PASS in Vercel (or web/.env.local for localhost), then redeploy.";

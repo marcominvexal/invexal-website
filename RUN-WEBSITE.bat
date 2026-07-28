@@ -58,7 +58,7 @@ if errorlevel 1 (
 )
 
 echo.
-echo [5/5] Testing email to marcominvexal@gmail.com + danish.khan@invexal.com ...
+echo [5/5] Testing email to danish.khan@invexal.com + CC waqi.anwer@invexal.com ...
 call npm.cmd run email:test
 if errorlevel 1 (
   echo.
@@ -73,8 +73,8 @@ echo   Website: http://localhost:3000
 echo   Form:    http://localhost:3000/book-a-demo
 echo ========================================
 echo   Leave this window OPEN while testing
-echo   After submit, terminal must show: [contact] email sent with both addresses in "to"
-echo   Gmail forward setup: see GMAIL-FORWARD-SETUP.txt in repo root
+echo   After submit, terminal must show: [contact] email sent (Gmail send-only)
+echo   Recipients: danish.khan@invexal.com + CC waqi.anwer@invexal.com
 echo ========================================
 echo.
 
