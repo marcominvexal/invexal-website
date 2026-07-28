@@ -30,14 +30,9 @@ if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
   process.exit(1);
 }
 
-const recipients = [
-  ...new Set(
-    [CONTACT_TO, CONTACT_FORWARD || "danish.khan@invexal.com"]
-      .flatMap((v) => (v || "").split(","))
-      .map((s) => s.trim())
-      .filter(Boolean)
-  ),
-];
+console.log("\n📧 Testing SMTP");
+console.log("   To:", CONTACT_TO || SMTP_USER);
+console.log("   Forward (CC):", CONTACT_FORWARD || "danish.khan@invexal.com");
 
 const transporter = nodemailer.createTransport({
   host: SMTP_HOST,
@@ -46,13 +41,12 @@ const transporter = nodemailer.createTransport({
   auth: { user: SMTP_USER, pass: SMTP_PASS },
 });
 
-console.log("\n📧 Testing SMTP →", recipients.join(", "));
-
 try {
   await transporter.verify();
   const info = await transporter.sendMail({
     from: `"Invexal Test" <${SMTP_FROM || SMTP_USER}>`,
-    to: recipients.join(", "),
+    to: CONTACT_TO || SMTP_USER,
+    cc: (CONTACT_FORWARD || "danish.khan@invexal.com").trim(),
     subject: "[Invexal] Local email test OK",
     text: "If you received this, the website contact form will work on localhost.",
   });

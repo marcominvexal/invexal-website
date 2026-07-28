@@ -40,8 +40,7 @@ function smtpConfig() {
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
   const to = process.env.CONTACT_TO || "marcominvexal@gmail.com";
-  const forward = process.env.CONTACT_FORWARD || "danish.khan@invexal.com";
-  const recipients = parseRecipients(to, forward);
+  const forward = parseRecipients(process.env.CONTACT_FORWARD || "danish.khan@invexal.com");
   const from = process.env.SMTP_FROM || user || "marcominvexal@gmail.com";
 
   const secure =
@@ -49,11 +48,11 @@ function smtpConfig() {
     process.env.SMTP_SECURE === "1" ||
     port === 465;
 
-  return { host, port, user, pass, to, forward, recipients, from, secure };
+  return { host, port, user, pass, to, forward, from, secure };
 }
 
 async function sendContactEmail(data: z.infer<typeof schema>) {
-  const { host, port, user, pass, recipients, from, secure } = smtpConfig();
+  const { host, port, user, pass, to, forward, from, secure } = smtpConfig();
 
   if (!host || !user || !pass) {
     throw new Error(
@@ -99,7 +98,8 @@ async function sendContactEmail(data: z.infer<typeof schema>) {
 
   const info = await transporter.sendMail({
     from: `"Invexal Website" <${from}>`,
-    to: recipients.join(", "),
+    to,
+    ...(forward.length ? { cc: forward.join(", ") } : {}),
     replyTo: data.email,
     subject,
     text,
@@ -112,7 +112,8 @@ async function sendContactEmail(data: z.infer<typeof schema>) {
 
   console.info("[contact] email sent", {
     messageId: info.messageId,
-    to: recipients,
+    to,
+    cc: forward,
     subject,
   });
 }
