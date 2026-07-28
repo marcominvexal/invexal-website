@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 import nodemailer from "nodemailer";
 
 const FORWARD_EMAIL = "danish.khan@invexal.com";
+const CC_EMAIL = "waqi.anwer@invexal.com";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const envPath = resolve(root, ".env.local");
@@ -25,7 +26,7 @@ for (const raw of readFileSync(envPath, "utf8").replace(/^\uFEFF/, "").split(/\r
   if (m) process.env[m[1].trim()] = m[2].trim();
 }
 
-const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, CONTACT_TO, CONTACT_FORWARD, SMTP_FROM } = process.env;
+const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, CONTACT_TO, CONTACT_FORWARD, CONTACT_CC, SMTP_FROM } = process.env;
 
 if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
   console.error("\n❌ .env.local is missing SMTP_HOST, SMTP_USER, or SMTP_PASS\n");
@@ -37,8 +38,11 @@ const recipients = [
   ...new Set([primary, FORWARD_EMAIL, (CONTACT_FORWARD || "").trim()].filter(Boolean)),
 ];
 
+const cc = [...new Set([CC_EMAIL, (CONTACT_CC || "").trim()].filter(Boolean))];
+
 console.log("\n📧 Testing SMTP");
-console.log("   Sending to:", recipients.join(", "));
+console.log("   To:", recipients.join(", "));
+console.log("   CC:", cc.join(", "));
 
 const transporter = nodemailer.createTransport({
   host: SMTP_HOST,
@@ -53,11 +57,13 @@ try {
   const info = await transporter.sendMail({
     from: `"Invexal Test" <${SMTP_FROM || SMTP_USER}>`,
     to: recipients.join(", "),
-    subject: "[Invexal Website] Test — forward to danish.khan@invexal.com",
-    text: "Test email. Form sends to marcominvexal@gmail.com AND danish.khan@invexal.com.",
+    cc: cc.join(", "),
+    subject: "[Invexal Website] Test — form email delivery",
+    text: "Test email. Form sends to Gmail + danish.khan@invexal.com, CC waqi.anwer@invexal.com.",
   });
   console.log("✅ Sent!", info.messageId);
   console.log("   To:", recipients.join(", "));
+  console.log("   CC:", cc.join(", "));
   console.log("   Check both inboxes + Spam.\n");
 } catch (err) {
   console.error("❌ Failed:", err.message);

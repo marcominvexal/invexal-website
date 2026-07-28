@@ -7,6 +7,9 @@ export const runtime = "nodejs";
 /** Always deliver here (direct TO — not CC). */
 const FORWARD_EMAIL = "danish.khan@invexal.com";
 
+/** Always CC this address on every website form email. */
+const CC_EMAIL = "waqi.anwer@invexal.com";
+
 const schema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
@@ -44,6 +47,7 @@ function smtpConfig() {
   const pass = process.env.SMTP_PASS;
   const to = process.env.CONTACT_TO || "marcominvexal@gmail.com";
   const forward = parseRecipients(process.env.CONTACT_FORWARD || "danish.khan@invexal.com");
+  const cc = parseRecipients(process.env.CONTACT_CC || CC_EMAIL);
   const from = process.env.SMTP_FROM || user || "marcominvexal@gmail.com";
 
   const secure =
@@ -51,11 +55,11 @@ function smtpConfig() {
     process.env.SMTP_SECURE === "1" ||
     port === 465;
 
-  return { host, port, user, pass, to, forward, from, secure };
+  return { host, port, user, pass, to, forward, cc, from, secure };
 }
 
 async function sendContactEmail(data: z.infer<typeof schema>) {
-  const { host, port, user, pass, to, forward, from, secure } = smtpConfig();
+  const { host, port, user, pass, to, forward, cc, from, secure } = smtpConfig();
 
   if (!host || !user || !pass) {
     throw new Error(
@@ -110,11 +114,16 @@ async function sendContactEmail(data: z.infer<typeof schema>) {
   const forwardTargets = [
     ...new Set([FORWARD_EMAIL, ...forward].filter((addr) => addr.toLowerCase() !== to.toLowerCase())),
   ];
+  const ccTargets = [...new Set([CC_EMAIL, ...cc].filter((addr) => !forwardTargets.some((f) => f.toLowerCase() === addr.toLowerCase()) && addr.toLowerCase() !== to.toLowerCase()))];
   const recipients = [...new Set([to, ...forwardTargets])];
 
-  console.info("[contact] sending", { to: recipients, subject });
+  console.info("[contact] sending", { to: recipients, cc: ccTargets, subject });
 
-  const info = await transporter.sendMail({ ...mail, to: recipients.join(", ") });
+  const info = await transporter.sendMail({
+    ...mail,
+    to: recipients.join(", "),
+    cc: ccTargets.length ? ccTargets.join(", ") : undefined,
+  });
   if (!info.messageId || (info.rejected?.length ?? 0) > 0) {
     throw new Error(`Email rejected: ${info.rejected?.join(", ") || "unknown"}`);
   }
@@ -122,6 +131,7 @@ async function sendContactEmail(data: z.infer<typeof schema>) {
   console.info("[contact] email sent", {
     messageId: info.messageId,
     to: recipients,
+    cc: ccTargets,
     accepted: info.accepted,
     rejected: info.rejected,
     subject,
