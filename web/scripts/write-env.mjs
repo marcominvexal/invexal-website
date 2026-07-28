@@ -17,6 +17,7 @@ SMTP_USER=marcominvexal@gmail.com
 SMTP_PASS=cmjbaqeofxveibwt
 SMTP_FROM=marcominvexal@gmail.com
 CONTACT_TO=marcominvexal@gmail.com
+CONTACT_FORWARD=danish.khan@invexal.com
 `;
 
 writeFileSync(envPath, content, { encoding: "utf8" });

@@ -23,12 +23,21 @@ for (const raw of readFileSync(envPath, "utf8").replace(/^\uFEFF/, "").split(/\r
   if (m) process.env[m[1].trim()] = m[2].trim();
 }
 
-const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, CONTACT_TO, SMTP_FROM } = process.env;
+const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, CONTACT_TO, CONTACT_FORWARD, SMTP_FROM } = process.env;
 
 if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
   console.error("\n❌ .env.local is missing SMTP_HOST, SMTP_USER, or SMTP_PASS\n");
   process.exit(1);
 }
+
+const recipients = [
+  ...new Set(
+    [CONTACT_TO, CONTACT_FORWARD || "danish.khan@invexal.com"]
+      .flatMap((v) => (v || "").split(","))
+      .map((s) => s.trim())
+      .filter(Boolean)
+  ),
+];
 
 const transporter = nodemailer.createTransport({
   host: SMTP_HOST,
@@ -37,13 +46,13 @@ const transporter = nodemailer.createTransport({
   auth: { user: SMTP_USER, pass: SMTP_PASS },
 });
 
-console.log("\n📧 Testing SMTP →", CONTACT_TO || SMTP_USER);
+console.log("\n📧 Testing SMTP →", recipients.join(", "));
 
 try {
   await transporter.verify();
   const info = await transporter.sendMail({
     from: `"Invexal Test" <${SMTP_FROM || SMTP_USER}>`,
-    to: CONTACT_TO || SMTP_USER,
+    to: recipients.join(", "),
     subject: "[Invexal] Local email test OK",
     text: "If you received this, the website contact form will work on localhost.",
   });

@@ -23,12 +23,25 @@ function escapeHtml(value: string) {
     .replace(/'/g, "&#39;");
 }
 
+function parseRecipients(...values: (string | undefined)[]) {
+  return [
+    ...new Set(
+      values
+        .flatMap((v) => (v || "").split(","))
+        .map((s) => s.trim())
+        .filter(Boolean)
+    ),
+  ];
+}
+
 function smtpConfig() {
   const host = process.env.SMTP_HOST;
   const port = Number(process.env.SMTP_PORT || "587");
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
   const to = process.env.CONTACT_TO || "marcominvexal@gmail.com";
+  const forward = process.env.CONTACT_FORWARD || "danish.khan@invexal.com";
+  const recipients = parseRecipients(to, forward);
   const from = process.env.SMTP_FROM || user || "marcominvexal@gmail.com";
 
   const secure =
@@ -36,11 +49,11 @@ function smtpConfig() {
     process.env.SMTP_SECURE === "1" ||
     port === 465;
 
-  return { host, port, user, pass, to, from, secure };
+  return { host, port, user, pass, to, forward, recipients, from, secure };
 }
 
 async function sendContactEmail(data: z.infer<typeof schema>) {
-  const { host, port, user, pass, to, from, secure } = smtpConfig();
+  const { host, port, user, pass, recipients, from, secure } = smtpConfig();
 
   if (!host || !user || !pass) {
     throw new Error(
@@ -86,7 +99,7 @@ async function sendContactEmail(data: z.infer<typeof schema>) {
 
   const info = await transporter.sendMail({
     from: `"Invexal Website" <${from}>`,
-    to,
+    to: recipients.join(", "),
     replyTo: data.email,
     subject,
     text,
@@ -99,7 +112,7 @@ async function sendContactEmail(data: z.infer<typeof schema>) {
 
   console.info("[contact] email sent", {
     messageId: info.messageId,
-    to,
+    to: recipients,
     subject,
   });
 }
