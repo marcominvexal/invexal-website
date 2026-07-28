@@ -23,13 +23,23 @@ function escapeHtml(value: string) {
     .replace(/'/g, "&#39;");
 }
 
-async function sendContactEmail(data: z.infer<typeof schema>) {
+function smtpConfig() {
   const host = process.env.SMTP_HOST;
-  const port = Number(process.env.SMTP_PORT || "465");
+  const port = Number(process.env.SMTP_PORT || "587");
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
   const to = process.env.CONTACT_TO || "marcom@invexal.com";
   const from = process.env.SMTP_FROM || user || "marcom@invexal.com";
+  const secure =
+    process.env.SMTP_SECURE === "true" ||
+    process.env.SMTP_SECURE === "1" ||
+    port === 465;
+
+  return { host, port, user, pass, to, from, secure };
+}
+
+async function sendContactEmail(data: z.infer<typeof schema>) {
+  const { host, port, user, pass, to, from, secure } = smtpConfig();
 
   if (!host || !user || !pass) {
     throw new Error(
@@ -40,8 +50,10 @@ async function sendContactEmail(data: z.infer<typeof schema>) {
   const transporter = nodemailer.createTransport({
     host,
     port,
-    secure: port === 465, // true for SSL (cPanel default), false for STARTTLS (587)
+    secure,
+    requireTLS: !secure && port === 587,
     auth: { user, pass },
+    tls: { minVersion: "TLSv1.2" },
   });
 
   const subject = `[Invexal Website] ${data.interest} — ${data.name}, ${data.company}`;
@@ -102,14 +114,23 @@ export async function POST(req: Request) {
     await sendContactEmail(data);
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("[contact] email delivery failed", err);
-    return NextResponse.json(
-      {
-        ok: false,
-        error:
-          "We could not send your message right now. Please email marcom@invexal.com directly, or try again.",
-      },
-      { status: 502 }
-    );
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[contact] email delivery failed", message);
+
+    const lockedBySecurity =
+      /security defaults|user is locked|5\.7\.139/i.test(message);
+    const badAuth = /Invalid login|Incorrect authentication|EAUTH/i.test(message);
+
+    let error =
+      "We could not send your message right now. Please email marcom@invexal.com directly, or try again.";
+    if (lockedBySecurity) {
+      error =
+        "Mailbox SMTP is blocked by Microsoft 365 security defaults. Enable Authenticated SMTP / App Password for marcom@invexal.com, then try again.";
+    } else if (badAuth) {
+      error =
+        "Email login failed. Check SMTP_USER / SMTP_PASS (use a Microsoft 365 app password if MFA is on).";
+    }
+
+    return NextResponse.json({ ok: false, error }, { status: 502 });
   }
 }
