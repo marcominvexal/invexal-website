@@ -3,6 +3,7 @@ import { Sora, Instrument_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import ArtisanVisitorTracking from "@/components/tracking/ArtisanVisitorTracking";
 import { SITE, buildMetadata, organizationJsonLd, websiteJsonLd, JsonLd } from "@/lib/seo";
 
 const sora = Sora({ subsets: ["latin"], variable: "--font-sora", display: "swap" });
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${sora.variable} ${instrument.variable} ${plexMono.variable}`}>
       <body className="bg-ink font-sans text-body antialiased">
+        <ArtisanVisitorTracking />
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
         <Header />
         <main id="main">{children}</main>
