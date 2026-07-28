@@ -84,13 +84,23 @@ async function sendContactEmail(data: z.infer<typeof schema>) {
     </div>
   `;
 
-  await transporter.sendMail({
+  const info = await transporter.sendMail({
     from: `"Invexal Website" <${from}>`,
     to,
     replyTo: data.email,
     subject,
     text,
     html,
+  });
+
+  if (!info.messageId || (info.rejected?.length ?? 0) > 0) {
+    throw new Error(`Email rejected by SMTP server: ${info.rejected?.join(", ") || "unknown"}`);
+  }
+
+  console.info("[contact] email sent", {
+    messageId: info.messageId,
+    to,
+    subject,
   });
 }
 
