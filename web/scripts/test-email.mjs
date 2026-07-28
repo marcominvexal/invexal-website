@@ -43,15 +43,24 @@ const transporter = nodemailer.createTransport({
 
 try {
   await transporter.verify();
-  const info = await transporter.sendMail({
+
+  const primary = await transporter.sendMail({
     from: `"Invexal Test" <${SMTP_FROM || SMTP_USER}>`,
     to: CONTACT_TO || SMTP_USER,
-    cc: (CONTACT_FORWARD || "danish.khan@invexal.com").trim(),
-    subject: "[Invexal] Local email test OK",
-    text: "If you received this, the website contact form will work on localhost.",
+    subject: "[Invexal Website] Test — Website form to Gmail",
+    text: "Gmail inbox test. Real form emails use the same format as live submissions.",
   });
-  console.log("✅ Email sent!", info.messageId);
-  console.log("   Check inbox + Spam folder.\n");
+  console.log("✅ Gmail:", primary.messageId);
+
+  const forwardTo = (CONTACT_FORWARD || "danish.khan@invexal.com").trim();
+  const fwd = await transporter.sendMail({
+    from: `"Invexal Test" <${SMTP_FROM || SMTP_USER}>`,
+    to: forwardTo,
+    subject: "[Invexal Website] Test — Forward to Invexal",
+    text: "Invexal.com inbox test. Real enquiries are forwarded here automatically.",
+  });
+  console.log("✅ Forward:", forwardTo, fwd.messageId);
+  console.log("   Check both inboxes + Spam.\n");
 } catch (err) {
   console.error("❌ Failed:", err.message);
   console.error("   Use a Gmail App Password (not your normal password).\n");
