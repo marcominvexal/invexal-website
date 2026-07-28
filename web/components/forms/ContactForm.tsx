@@ -37,6 +37,10 @@ export default function ContactForm() {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
+  const [errorMessage, setErrorMessage] = useState(
+    "Something went wrong sending your message. Please try again, or email us directly at marcom@invexal.com."
+  );
+
   const onSubmit = async (data: FormData) => {
     setFailed(false);
     try {
@@ -45,7 +49,11 @@ export default function ContactForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error(String(res.status));
+      const payload = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+      if (!res.ok || !payload?.ok) {
+        if (payload?.error) setErrorMessage(payload.error);
+        throw new Error(payload?.error || String(res.status));
+      }
       setSent(true);
     } catch {
       setFailed(true);
@@ -103,7 +111,7 @@ export default function ContactForm() {
       </div>
       {failed && (
         <p role="alert" className="rounded-xl border border-amber/40 bg-glass px-4 py-3 text-sm text-amber">
-          Something went wrong sending your message. Please try again, or email us directly at marcom@invexal.com.
+          {errorMessage}
         </p>
       )}
       <button

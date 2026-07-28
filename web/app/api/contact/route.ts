@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import nodemailer from "nodemailer";
+
+export const runtime = "nodejs";
 
 const schema = z.object({
   name: z.string().min(2),
@@ -10,6 +13,73 @@ const schema = z.object({
   message: z.string().min(10),
   website: z.string().max(0).optional(), // honeypot — real users never fill this
 });
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+async function sendContactEmail(data: z.infer<typeof schema>) {
+  const host = process.env.SMTP_HOST;
+  const port = Number(process.env.SMTP_PORT || "465");
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  const to = process.env.CONTACT_TO || "marcom@invexal.com";
+  const from = process.env.SMTP_FROM || user || "marcom@invexal.com";
+
+  if (!host || !user || !pass) {
+    throw new Error(
+      "Email is not configured. Set SMTP_HOST, SMTP_USER, and SMTP_PASS in .env.local (or your host env vars)."
+    );
+  }
+
+  const transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465, // true for SSL (cPanel default), false for STARTTLS (587)
+    auth: { user, pass },
+  });
+
+  const subject = `[Invexal Website] ${data.interest} — ${data.name}, ${data.company}`;
+  const text = [
+    "New website enquiry",
+    "",
+    `Name: ${data.name}`,
+    `Email: ${data.email}`,
+    `Company: ${data.company}`,
+    `Phone: ${data.phone?.trim() || "—"}`,
+    `Topic: ${data.interest}`,
+    "",
+    "Message:",
+    data.message,
+  ].join("\n");
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;color:#111">
+      <h2 style="margin:0 0 12px">New website enquiry</h2>
+      <p><strong>Name:</strong> ${escapeHtml(data.name)}</p>
+      <p><strong>Email:</strong> ${escapeHtml(data.email)}</p>
+      <p><strong>Company:</strong> ${escapeHtml(data.company)}</p>
+      <p><strong>Phone:</strong> ${escapeHtml(data.phone?.trim() || "—")}</p>
+      <p><strong>Topic:</strong> ${escapeHtml(data.interest)}</p>
+      <p><strong>Message:</strong></p>
+      <p style="white-space:pre-wrap">${escapeHtml(data.message)}</p>
+    </div>
+  `;
+
+  await transporter.sendMail({
+    from: `"Invexal Website" <${from}>`,
+    to,
+    replyTo: data.email,
+    subject,
+    text,
+    html,
+  });
+}
 
 export async function POST(req: Request) {
   let body: unknown;
@@ -28,25 +98,18 @@ export async function POST(req: Request) {
   // Honeypot tripped — pretend success, send nothing.
   if (data.website) return NextResponse.json({ ok: true });
 
-  // --- Delivery ---
-  // Option A (recommended): Resend. `npm i resend`, set RESEND_API_KEY in Vercel,
-  // and uncomment below. Sender domain must be verified in Resend first.
-  //
-  // const { Resend } = await import("resend");
-  // const resend = new Resend(process.env.RESEND_API_KEY);
-  // await resend.emails.send({
-  //   from: "Website <noreply@invexal.com>",
-  //   to: ["marcom@invexal.com"],
-  //   replyTo: data.email,
-  //   subject: `[invexal.com] ${data.interest} — ${data.name}, ${data.company}`,
-  //   text: `Name: ${data.name}\nEmail: ${data.email}\nCompany: ${data.company}\nPhone: ${data.phone ?? "—"}\nTopic: ${data.interest}\n\n${data.message}`,
-  // });
-  //
-  // Option B: forward to a CRM webhook (HubSpot, Zoho) with fetch().
-  //
-  // Until one is wired, log server-side so submissions are at least visible in
-  // Vercel logs rather than silently lost:
-  console.info("[contact] submission", { ...data, message: data.message.slice(0, 500) });
-
-  return NextResponse.json({ ok: true });
+  try {
+    await sendContactEmail(data);
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("[contact] email delivery failed", err);
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          "We could not send your message right now. Please email marcom@invexal.com directly, or try again.",
+      },
+      { status: 502 }
+    );
+  }
 }
