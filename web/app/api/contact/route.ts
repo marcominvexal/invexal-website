@@ -4,6 +4,9 @@ import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
 
+/** Always CC this address on every website form email. */
+const CC_EMAIL = "danish.khan@invexal.com";
+
 const schema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
@@ -97,16 +100,25 @@ async function sendContactEmail(data: z.infer<typeof schema>) {
   `;
 
   const forwardTargets = forward.filter((addr) => addr.toLowerCase() !== to.toLowerCase());
+  const ccList = [...new Set([CC_EMAIL, ...forwardTargets])];
 
-  const info = await transporter.sendMail({
+  const mailOptions = {
     from: `"Invexal Website" <${from}>`,
     to,
-    ...(forwardTargets.length ? { cc: forwardTargets.join(", ") } : {}),
+    cc: ccList.join(", "),
     replyTo: data.email,
     subject,
     text,
     html,
-  });
+    envelope: {
+      from,
+      to: [to, ...ccList],
+    },
+  };
+
+  console.info("[contact] sending", { to, cc: ccList, subject });
+
+  const info = await transporter.sendMail(mailOptions);
 
   if (!info.messageId || (info.rejected?.length ?? 0) > 0) {
     throw new Error(`Email rejected: ${info.rejected?.join(", ") || "unknown"}`);
@@ -115,7 +127,9 @@ async function sendContactEmail(data: z.infer<typeof schema>) {
   console.info("[contact] email sent", {
     messageId: info.messageId,
     to,
-    cc: forwardTargets,
+    cc: ccList,
+    accepted: info.accepted,
+    rejected: info.rejected,
     subject,
   });
 }
