@@ -1,0 +1,19 @@
+INvexal website — email setup (Book a Demo / Contact forms)
+============================================================
+
+Forms POST to /api/contact. Email only sends when these env vars exist.
+
+LOCAL (Windows / Mac)
+---------------------
+1. Copy web/.env.example → web/.env.local
+2. Set SMTP_PASS to your Gmail App Password (NOT your normal Gmail password)
+3. Restart: npm run dev
+4. Test: http://localhost:3000/book-a-demo
+
+VERCEL (live site — invexal-website.vercel.app)
+------------------------------------------------
+1. Open vercel.com → your project → Settings → Environment Variables
+2. Add ALL variables from web/.env.example (Production + Preview + Development)
+3. Deployments → Redeploy (required after adding vars)
+
+Without Vercel env vars, the website form FAILS (502) even though direct SMTP tests work.

@@ -128,13 +128,17 @@ export async function POST(req: Request) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[contact] email delivery failed", message);
 
+    const notConfigured = /not configured|SMTP_HOST/i.test(message);
     const lockedBySecurity =
       /security defaults|user is locked|5\.7\.139/i.test(message);
     const badAuth = /Invalid login|Incorrect authentication|EAUTH/i.test(message);
 
     let error =
       "We could not send your message right now. Please email marcominvexal@gmail.com directly, or try again.";
-    if (lockedBySecurity) {
+    if (notConfigured) {
+      error =
+        "Email delivery is not configured on this server yet. Add SMTP_HOST, SMTP_USER, and SMTP_PASS in Vercel (or web/.env.local for localhost), then redeploy.";
+    } else if (lockedBySecurity) {
       error =
         "Mailbox SMTP is blocked by provider security settings. For Gmail, enable 2-Step Verification and create an App Password, then try again.";
     } else if (badAuth) {
