@@ -36,15 +36,12 @@ if errorlevel 1 (
 cd web
 
 echo [3/5] Creating .env.local for email...
-(
-echo SMTP_HOST=smtp.gmail.com
-echo SMTP_PORT=587
-echo SMTP_SECURE=false
-echo SMTP_USER=marcominvexal@gmail.com
-echo SMTP_PASS=cmjbaqeofxveibwt
-echo SMTP_FROM=marcominvexal@gmail.com
-echo CONTACT_TO=marcominvexal@gmail.com
-) > .env.local
+call npm.cmd run env:write
+if errorlevel 1 (
+  echo ERROR: could not write .env.local
+  pause
+  exit /b 1
+)
 
 echo [4/5] Installing packages...
 call npm.cmd install

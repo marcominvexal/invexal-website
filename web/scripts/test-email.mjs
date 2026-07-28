@@ -16,8 +16,10 @@ if (!existsSync(envPath)) {
   process.exit(1);
 }
 
-for (const line of readFileSync(envPath, "utf8").split("\n")) {
-  const m = line.match(/^([^#=]+)=(.*)$/);
+for (const raw of readFileSync(envPath, "utf8").replace(/^\uFEFF/, "").split(/\r?\n/)) {
+  const line = raw.trim();
+  if (!line || line.startsWith("#")) continue;
+  const m = line.match(/^([^=]+)=(.*)$/);
   if (m) process.env[m[1].trim()] = m[2].trim();
 }
 
