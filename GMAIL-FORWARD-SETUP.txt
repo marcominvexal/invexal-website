@@ -1,0 +1,38 @@
+================================================================================
+  Gmail Forward: marcominvexal@gmail.com  →  danish.khan@invexal.com
+================================================================================
+
+Website form already sends a direct copy to danish.khan@invexal.com.
+Use this Gmail rule so EVERY email in marcominvexal@gmail.com also forwards.
+
+Steps (5 minutes):
+------------------
+1. Open https://mail.google.com  (login: marcominvexal@gmail.com)
+
+2. Click the gear icon (top right) → "See all settings"
+
+3. Tab: "Forwarding and POP/IMAP"
+
+4. Click "Add a forwarding address"
+   Enter: danish.khan@invexal.com
+   Click Next → Proceed → OK
+
+5. Open danish.khan@invexal.com inbox (or ask Danish to check)
+   Click the verification link from Google
+
+6. Back in Gmail settings → Forwarding:
+   Select: "Forward a copy of incoming mail to danish.khan@invexal.com"
+   Choose: "keep Gmail's copy in the Inbox" (recommended)
+   Click Save Changes
+
+Done. All future Gmail emails (including website forms) copy to Danish.
+
+Urdu:
+-----
+1. marcominvexal@gmail.com par Gmail kholo
+2. Settings → Forwarding and POP/IMAP
+3. "Add a forwarding address" → danish.khan@invexal.com
+4. Danish ke inbox mein verification link open karo
+5. "Forward a copy" select karo → Save
+
+================================================================================

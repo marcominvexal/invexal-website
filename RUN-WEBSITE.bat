@@ -73,7 +73,8 @@ echo   Website: http://localhost:3000
 echo   Form:    http://localhost:3000/book-a-demo
 echo ========================================
 echo   Leave this window OPEN while testing
-echo   After submit, terminal must show: [contact] email sent + [contact] forwarded
+echo   After submit, terminal must show: [contact] email sent with both addresses in "to"
+echo   Gmail forward setup: see GMAIL-FORWARD-SETUP.txt in repo root
 echo ========================================
 echo.
 

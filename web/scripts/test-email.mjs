@@ -14,7 +14,7 @@ const envPath = resolve(root, ".env.local");
 
 if (!existsSync(envPath)) {
   console.error("\n❌ Missing web/.env.local");
-  console.error("   Run: setup-email.bat   OR   copy .env.example .env.local and edit SMTP_PASS\n");
+  console.error("   Run: npm run env:write\n");
   process.exit(1);
 }
 
@@ -32,14 +32,13 @@ if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
   process.exit(1);
 }
 
-const to = CONTACT_TO || SMTP_USER;
-const forward = [...new Set([FORWARD_EMAIL, (CONTACT_FORWARD || "").trim()].filter(Boolean))].filter(
-  (addr) => addr.toLowerCase() !== to.toLowerCase()
-);
+const primary = CONTACT_TO || SMTP_USER;
+const recipients = [
+  ...new Set([primary, FORWARD_EMAIL, (CONTACT_FORWARD || "").trim()].filter(Boolean)),
+];
 
 console.log("\n📧 Testing SMTP");
-console.log("   Primary:", to);
-console.log("   Forward (separate email):", forward.join(", "));
+console.log("   Sending to:", recipients.join(", "));
 
 const transporter = nodemailer.createTransport({
   host: SMTP_HOST,
@@ -48,24 +47,18 @@ const transporter = nodemailer.createTransport({
   auth: { user: SMTP_USER, pass: SMTP_PASS },
 });
 
-const mail = {
-  from: `"Invexal Test" <${SMTP_FROM || SMTP_USER}>`,
-  subject: "[Invexal Website] Test — form email delivery",
-  text: "Test email. Website form sends to Gmail, then a separate copy to danish.khan@invexal.com.",
-};
-
 try {
   await transporter.verify();
 
-  const primary = await transporter.sendMail({ ...mail, to });
-  console.log("✅ Primary sent!", primary.messageId, "→", to);
-
-  for (const addr of forward) {
-    const fwd = await transporter.sendMail({ ...mail, to: addr });
-    console.log("✅ Forward sent!", fwd.messageId, "→", addr);
-  }
-
-  console.log("\n   Check both inboxes + Spam.\n");
+  const info = await transporter.sendMail({
+    from: `"Invexal Test" <${SMTP_FROM || SMTP_USER}>`,
+    to: recipients.join(", "),
+    subject: "[Invexal Website] Test — forward to danish.khan@invexal.com",
+    text: "Test email. Form sends to marcominvexal@gmail.com AND danish.khan@invexal.com.",
+  });
+  console.log("✅ Sent!", info.messageId);
+  console.log("   To:", recipients.join(", "));
+  console.log("   Check both inboxes + Spam.\n");
 } catch (err) {
   console.error("❌ Failed:", err.message);
   console.error("   Use a Gmail App Password (not your normal password).\n");

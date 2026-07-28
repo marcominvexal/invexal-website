@@ -4,7 +4,7 @@ import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
 
-/** Always send a separate direct copy here (CC from Gmail is often blocked by corporate mail). */
+/** Always deliver here (direct TO — not CC). */
 const FORWARD_EMAIL = "danish.khan@invexal.com";
 
 const schema = z.object({
@@ -110,35 +110,22 @@ async function sendContactEmail(data: z.infer<typeof schema>) {
   const forwardTargets = [
     ...new Set([FORWARD_EMAIL, ...forward].filter((addr) => addr.toLowerCase() !== to.toLowerCase())),
   ];
+  const recipients = [...new Set([to, ...forwardTargets])];
 
-  console.info("[contact] sending", { to, forward: forwardTargets, subject });
+  console.info("[contact] sending", { to: recipients, subject });
 
-  const primary = await transporter.sendMail({ ...mail, to });
-  if (!primary.messageId || (primary.rejected?.length ?? 0) > 0) {
-    throw new Error(`Email rejected for ${to}: ${primary.rejected?.join(", ") || "unknown"}`);
+  const info = await transporter.sendMail({ ...mail, to: recipients.join(", ") });
+  if (!info.messageId || (info.rejected?.length ?? 0) > 0) {
+    throw new Error(`Email rejected: ${info.rejected?.join(", ") || "unknown"}`);
   }
 
   console.info("[contact] email sent", {
-    messageId: primary.messageId,
-    to,
-    accepted: primary.accepted,
-    rejected: primary.rejected,
+    messageId: info.messageId,
+    to: recipients,
+    accepted: info.accepted,
+    rejected: info.rejected,
     subject,
   });
-
-  for (const addr of forwardTargets) {
-    const fwd = await transporter.sendMail({ ...mail, to: addr });
-    if (!fwd.messageId || (fwd.rejected?.length ?? 0) > 0) {
-      throw new Error(`Forward rejected for ${addr}: ${fwd.rejected?.join(", ") || "unknown"}`);
-    }
-    console.info("[contact] forwarded", {
-      messageId: fwd.messageId,
-      to: addr,
-      accepted: fwd.accepted,
-      rejected: fwd.rejected,
-      subject,
-    });
-  }
 }
 
 export async function POST(req: Request) {
