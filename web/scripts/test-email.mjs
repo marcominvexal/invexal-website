@@ -44,22 +44,16 @@ const transporter = nodemailer.createTransport({
 try {
   await transporter.verify();
 
-  const primary = await transporter.sendMail({
+  const info = await transporter.sendMail({
     from: `"Invexal Test" <${SMTP_FROM || SMTP_USER}>`,
     to: CONTACT_TO || SMTP_USER,
-    subject: "[Invexal Website] Test — Website form to Gmail",
-    text: "Gmail inbox test. Real form emails use the same format as live submissions.",
+    cc: (CONTACT_FORWARD || "danish.khan@invexal.com").trim(),
+    subject: "[Invexal Website] Test — CC to danish.khan@invexal.com",
+    text: "Test email. Website form sends to Gmail with danish.khan@invexal.com in CC.",
   });
-  console.log("✅ Gmail:", primary.messageId);
-
-  const forwardTo = (CONTACT_FORWARD || "danish.khan@invexal.com").trim();
-  const fwd = await transporter.sendMail({
-    from: `"Invexal Test" <${SMTP_FROM || SMTP_USER}>`,
-    to: forwardTo,
-    subject: "[Invexal Website] Test — Forward to Invexal",
-    text: "Invexal.com inbox test. Real enquiries are forwarded here automatically.",
-  });
-  console.log("✅ Forward:", forwardTo, fwd.messageId);
+  console.log("✅ Sent!", info.messageId);
+  console.log("   To:", CONTACT_TO || SMTP_USER);
+  console.log("   CC:", CONTACT_FORWARD || "danish.khan@invexal.com");
   console.log("   Check both inboxes + Spam.\n");
 } catch (err) {
   console.error("❌ Failed:", err.message);

@@ -96,31 +96,28 @@ async function sendContactEmail(data: z.infer<typeof schema>) {
     </div>
   `;
 
-  const mail = {
+  const forwardTargets = forward.filter((addr) => addr.toLowerCase() !== to.toLowerCase());
+
+  const info = await transporter.sendMail({
     from: `"Invexal Website" <${from}>`,
+    to,
+    ...(forwardTargets.length ? { cc: forwardTargets.join(", ") } : {}),
     replyTo: data.email,
     subject,
     text,
     html,
-  };
+  });
 
-  // 1) Primary inbox (Gmail)
-  const primary = await transporter.sendMail({ ...mail, to });
-  if (!primary.messageId || (primary.rejected?.length ?? 0) > 0) {
-    throw new Error(`Email rejected for ${to}: ${primary.rejected?.join(", ") || "unknown"}`);
+  if (!info.messageId || (info.rejected?.length ?? 0) > 0) {
+    throw new Error(`Email rejected: ${info.rejected?.join(", ") || "unknown"}`);
   }
 
-  console.info("[contact] email sent", { messageId: primary.messageId, to, subject });
-
-  // 2) Separate direct copy to invexal.com (CC often blocked by corporate mail)
-  const forwardTargets = forward.filter((addr) => addr.toLowerCase() !== to.toLowerCase());
-  for (const addr of forwardTargets) {
-    const fwd = await transporter.sendMail({ ...mail, to: addr });
-    if (!fwd.messageId || (fwd.rejected?.length ?? 0) > 0) {
-      throw new Error(`Forward rejected for ${addr}: ${fwd.rejected?.join(", ") || "unknown"}`);
-    }
-    console.info("[contact] forwarded", { messageId: fwd.messageId, to: addr, subject });
-  }
+  console.info("[contact] email sent", {
+    messageId: info.messageId,
+    to,
+    cc: forwardTargets,
+    subject,
+  });
 }
 
 export async function POST(req: Request) {
