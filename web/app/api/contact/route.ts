@@ -28,8 +28,9 @@ function smtpConfig() {
   const port = Number(process.env.SMTP_PORT || "587");
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
-  const to = process.env.CONTACT_TO || "marcom@invexal.com";
-  const from = process.env.SMTP_FROM || user || "marcom@invexal.com";
+  const to = process.env.CONTACT_TO || "marcominvexal@gmail.com";
+  const from = process.env.SMTP_FROM || user || "marcominvexal@gmail.com";
+
   const secure =
     process.env.SMTP_SECURE === "true" ||
     process.env.SMTP_SECURE === "1" ||
@@ -122,13 +123,13 @@ export async function POST(req: Request) {
     const badAuth = /Invalid login|Incorrect authentication|EAUTH/i.test(message);
 
     let error =
-      "We could not send your message right now. Please email marcom@invexal.com directly, or try again.";
+      "We could not send your message right now. Please email marcominvexal@gmail.com directly, or try again.";
     if (lockedBySecurity) {
       error =
-        "Mailbox SMTP is blocked by Microsoft 365 security defaults. Enable Authenticated SMTP / App Password for marcom@invexal.com, then try again.";
+        "Mailbox SMTP is blocked by provider security settings. For Gmail, enable 2-Step Verification and create an App Password, then try again.";
     } else if (badAuth) {
       error =
-        "Email login failed. Check SMTP_USER / SMTP_PASS (use a Microsoft 365 app password if MFA is on).";
+        "Email login failed. Check SMTP_USER / SMTP_PASS (use a Gmail App Password, not your normal password).";
     }
 
     return NextResponse.json({ ok: false, error }, { status: 502 });

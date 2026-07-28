@@ -96,7 +96,7 @@ export default function DemoRequestForm() {
       </div>
       {failed && (
         <p role="alert" className="rounded-xl border border-amber/40 bg-glass px-4 py-3 text-sm text-amber">
-          Something went wrong sending your request. Please try again, or email us directly at marcom@invexal.com.
+          Something went wrong sending your request. Please try again, or email us directly at marcominvexal@gmail.com.
         </p>
       )}
       <button

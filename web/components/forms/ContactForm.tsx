@@ -38,7 +38,7 @@ export default function ContactForm() {
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   const [errorMessage, setErrorMessage] = useState(
-    "Something went wrong sending your message. Please try again, or email us directly at marcom@invexal.com."
+    "Something went wrong sending your message. Please try again, or email us directly at marcominvexal@gmail.com."
   );
 
   const onSubmit = async (data: FormData) => {
