@@ -7,6 +7,8 @@ import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import nodemailer from "nodemailer";
 
+const FORWARD_EMAIL = "danish.khan@invexal.com";
+
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const envPath = resolve(root, ".env.local");
 
@@ -30,9 +32,14 @@ if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
   process.exit(1);
 }
 
+const to = CONTACT_TO || SMTP_USER;
+const forward = [...new Set([FORWARD_EMAIL, (CONTACT_FORWARD || "").trim()].filter(Boolean))].filter(
+  (addr) => addr.toLowerCase() !== to.toLowerCase()
+);
+
 console.log("\n📧 Testing SMTP");
-console.log("   To:", CONTACT_TO || SMTP_USER);
-console.log("   Forward (CC):", CONTACT_FORWARD || "danish.khan@invexal.com");
+console.log("   Primary:", to);
+console.log("   Forward (separate email):", forward.join(", "));
 
 const transporter = nodemailer.createTransport({
   host: SMTP_HOST,
@@ -41,20 +48,24 @@ const transporter = nodemailer.createTransport({
   auth: { user: SMTP_USER, pass: SMTP_PASS },
 });
 
+const mail = {
+  from: `"Invexal Test" <${SMTP_FROM || SMTP_USER}>`,
+  subject: "[Invexal Website] Test — form email delivery",
+  text: "Test email. Website form sends to Gmail, then a separate copy to danish.khan@invexal.com.",
+};
+
 try {
   await transporter.verify();
 
-  const info = await transporter.sendMail({
-    from: `"Invexal Test" <${SMTP_FROM || SMTP_USER}>`,
-    to: CONTACT_TO || SMTP_USER,
-    cc: (CONTACT_FORWARD || "danish.khan@invexal.com").trim(),
-    subject: "[Invexal Website] Test — CC to danish.khan@invexal.com",
-    text: "Test email. Website form sends to Gmail with danish.khan@invexal.com in CC.",
-  });
-  console.log("✅ Sent!", info.messageId);
-  console.log("   To:", CONTACT_TO || SMTP_USER);
-  console.log("   CC:", CONTACT_FORWARD || "danish.khan@invexal.com");
-  console.log("   Check both inboxes + Spam.\n");
+  const primary = await transporter.sendMail({ ...mail, to });
+  console.log("✅ Primary sent!", primary.messageId, "→", to);
+
+  for (const addr of forward) {
+    const fwd = await transporter.sendMail({ ...mail, to: addr });
+    console.log("✅ Forward sent!", fwd.messageId, "→", addr);
+  }
+
+  console.log("\n   Check both inboxes + Spam.\n");
 } catch (err) {
   console.error("❌ Failed:", err.message);
   console.error("   Use a Gmail App Password (not your normal password).\n");

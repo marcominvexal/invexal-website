@@ -4,8 +4,8 @@ import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
 
-/** Always CC this address on every website form email. */
-const CC_EMAIL = "danish.khan@invexal.com";
+/** Always send a separate direct copy here (CC from Gmail is often blocked by corporate mail). */
+const FORWARD_EMAIL = "danish.khan@invexal.com";
 
 const schema = z.object({
   name: z.string().min(2),
@@ -99,39 +99,46 @@ async function sendContactEmail(data: z.infer<typeof schema>) {
     </div>
   `;
 
-  const forwardTargets = forward.filter((addr) => addr.toLowerCase() !== to.toLowerCase());
-  const ccList = [...new Set([CC_EMAIL, ...forwardTargets])];
-
-  const mailOptions = {
+  const mail = {
     from: `"Invexal Website" <${from}>`,
-    to,
-    cc: ccList.join(", "),
     replyTo: data.email,
     subject,
     text,
     html,
-    envelope: {
-      from,
-      to: [to, ...ccList],
-    },
   };
 
-  console.info("[contact] sending", { to, cc: ccList, subject });
+  const forwardTargets = [
+    ...new Set([FORWARD_EMAIL, ...forward].filter((addr) => addr.toLowerCase() !== to.toLowerCase())),
+  ];
 
-  const info = await transporter.sendMail(mailOptions);
+  console.info("[contact] sending", { to, forward: forwardTargets, subject });
 
-  if (!info.messageId || (info.rejected?.length ?? 0) > 0) {
-    throw new Error(`Email rejected: ${info.rejected?.join(", ") || "unknown"}`);
+  const primary = await transporter.sendMail({ ...mail, to });
+  if (!primary.messageId || (primary.rejected?.length ?? 0) > 0) {
+    throw new Error(`Email rejected for ${to}: ${primary.rejected?.join(", ") || "unknown"}`);
   }
 
   console.info("[contact] email sent", {
-    messageId: info.messageId,
+    messageId: primary.messageId,
     to,
-    cc: ccList,
-    accepted: info.accepted,
-    rejected: info.rejected,
+    accepted: primary.accepted,
+    rejected: primary.rejected,
     subject,
   });
+
+  for (const addr of forwardTargets) {
+    const fwd = await transporter.sendMail({ ...mail, to: addr });
+    if (!fwd.messageId || (fwd.rejected?.length ?? 0) > 0) {
+      throw new Error(`Forward rejected for ${addr}: ${fwd.rejected?.join(", ") || "unknown"}`);
+    }
+    console.info("[contact] forwarded", {
+      messageId: fwd.messageId,
+      to: addr,
+      accepted: fwd.accepted,
+      rejected: fwd.rejected,
+      subject,
+    });
+  }
 }
 
 export async function POST(req: Request) {

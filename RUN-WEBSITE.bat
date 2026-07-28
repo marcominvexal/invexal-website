@@ -32,6 +32,12 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
+findstr /C:"FORWARD_EMAIL" web\app\api\contact\route.ts >nul
+if errorlevel 1 (
+  echo ERROR: Email forward code missing. Run: git fetch origin main ^& git reset --hard origin/main
+  pause
+  exit /b 1
+)
 
 cd web
 
@@ -52,7 +58,7 @@ if errorlevel 1 (
 )
 
 echo.
-echo [5/5] Testing email to marcominvexal@gmail.com ...
+echo [5/5] Testing email to marcominvexal@gmail.com + danish.khan@invexal.com ...
 call npm.cmd run email:test
 if errorlevel 1 (
   echo.
@@ -67,7 +73,7 @@ echo   Website: http://localhost:3000
 echo   Form:    http://localhost:3000/book-a-demo
 echo ========================================
 echo   Leave this window OPEN while testing
-echo   After submit, terminal must show: [contact] email sent
+echo   After submit, terminal must show: [contact] email sent + [contact] forwarded
 echo ========================================
 echo.
 
