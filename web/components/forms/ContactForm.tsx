@@ -18,6 +18,8 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
+const CONTACT_EMAIL = "marcominvexal@gmail.com";
+
 const interests = [
   "AI Agents", "Computer Vision", "AIoT / Connected Operations", "Intelligent Automation",
   "A specific product", "AI Readiness Assessment", "Partnership", "Something else",
@@ -28,34 +30,74 @@ const field =
 const label = "mb-2 block font-mono text-telemetry uppercase text-teal";
 const error = "mt-1 text-sm text-amber";
 
+/** Server SMTP via /api/contact (uses .env.local or Vercel env vars). */
+async function sendViaApi(data: FormData) {
+  const res = await fetch("/api/contact", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  const payload = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+  if (!res.ok || !payload?.ok) {
+    throw new Error(payload?.error || `Server error (${res.status})`);
+  }
+}
+
+/**
+ * Browser fallback when SMTP is not configured on the host (e.g. Vercel without env vars).
+ * FormSubmit delivers to Gmail without server credentials.
+ */
+async function sendViaFormSubmit(data: FormData) {
+  const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(CONTACT_EMAIL)}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({
+      name: data.name,
+      email: data.email,
+      company: data.company,
+      phone: data.phone?.trim() || "—",
+      interest: data.interest,
+      message: data.message,
+      _subject: `[Invexal Website] ${data.interest} — ${data.name}, ${data.company}`,
+      _captcha: "false",
+      _template: "table",
+    }),
+  });
+
+  const payload = (await res.json().catch(() => null)) as { success?: string | boolean } | null;
+  const ok = payload?.success === true || payload?.success === "true";
+  if (!res.ok || !ok) {
+    throw new Error("Could not deliver your message. Please email us directly.");
+  }
+}
+
 export default function ContactForm() {
   const [sent, setSent] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(
+    `Something went wrong. Please email us directly at ${CONTACT_EMAIL}.`
+  );
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
-  const [errorMessage, setErrorMessage] = useState(
-    "Something went wrong sending your message. Please try again, or email us directly at marcominvexal@gmail.com."
-  );
-
   const onSubmit = async (data: FormData) => {
     setFailed(false);
+    setErrorMessage(`Something went wrong. Please email us directly at ${CONTACT_EMAIL}.`);
+
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      const payload = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
-      if (!res.ok || !payload?.ok) {
-        if (payload?.error) setErrorMessage(payload.error);
-        throw new Error(payload?.error || String(res.status));
+      try {
+        await sendViaApi(data);
+      } catch (apiErr) {
+        // Vercel / localhost without .env.local — fall back to browser delivery
+        console.warn("[contact] SMTP API unavailable, using FormSubmit fallback", apiErr);
+        await sendViaFormSubmit(data);
       }
       setSent(true);
-    } catch {
+    } catch (err) {
+      if (err instanceof Error && err.message) setErrorMessage(err.message);
       setFailed(true);
     }
   };
@@ -71,7 +113,6 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
-      {/* Honeypot — hidden from humans, bots fill it and get silently dropped */}
       <input type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" {...register("website")} />
       <div className="grid gap-5 md:grid-cols-2">
         <div>

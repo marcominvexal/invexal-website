@@ -16,14 +16,64 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
+const CONTACT_EMAIL = "marcominvexal@gmail.com";
+
 const field =
   "w-full rounded-xl border border-line bg-glass px-4 py-3 text-body placeholder:text-muted/60 backdrop-blur focus:border-teal/60 focus:outline-none";
 const label = "mb-2 block font-mono text-telemetry uppercase text-teal";
 const error = "mt-1 text-sm text-amber";
 
+type Payload = {
+  name: string;
+  email: string;
+  company: string;
+  phone?: string;
+  interest: string;
+  message: string;
+  website?: string;
+};
+
+async function sendViaApi(data: Payload) {
+  const res = await fetch("/api/contact", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  const payload = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+  if (!res.ok || !payload?.ok) {
+    throw new Error(payload?.error || `Server error (${res.status})`);
+  }
+}
+
+async function sendViaFormSubmit(data: Payload) {
+  const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(CONTACT_EMAIL)}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({
+      name: data.name,
+      email: data.email,
+      company: data.company,
+      phone: data.phone?.trim() || "—",
+      interest: data.interest,
+      message: data.message,
+      _subject: `[Invexal Website] ${data.interest} — ${data.name}, ${data.company}`,
+      _captcha: "false",
+      _template: "table",
+    }),
+  });
+  const payload = (await res.json().catch(() => null)) as { success?: string | boolean } | null;
+  const ok = payload?.success === true || payload?.success === "true";
+  if (!res.ok || !ok) {
+    throw new Error("Could not deliver your request. Please email us directly.");
+  }
+}
+
 export default function DemoRequestForm() {
   const [sent, setSent] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(
+    `Something went wrong. Please email us directly at ${CONTACT_EMAIL}.`
+  );
   const {
     register,
     handleSubmit,
@@ -32,23 +82,25 @@ export default function DemoRequestForm() {
 
   const onSubmit = async (data: FormData) => {
     setFailed(false);
+    const payload: Payload = {
+      name: `${data.firstName} ${data.lastName}`,
+      email: data.email,
+      company: data.company,
+      phone: data.phone,
+      interest: "Demo request",
+      message: "Requested a demo via the homepage CTA.",
+      website: data.website,
+    };
+
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: `${data.firstName} ${data.lastName}`,
-          email: data.email,
-          company: data.company,
-          phone: data.phone,
-          interest: "Demo request",
-          message: "Requested a demo via the homepage CTA.",
-          website: data.website,
-        }),
-      });
-      if (!res.ok) throw new Error(String(res.status));
+      try {
+        await sendViaApi(payload);
+      } catch {
+        await sendViaFormSubmit(payload);
+      }
       setSent(true);
-    } catch {
+    } catch (err) {
+      if (err instanceof Error && err.message) setErrorMessage(err.message);
       setFailed(true);
     }
   };
@@ -64,7 +116,6 @@ export default function DemoRequestForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
-      {/* Honeypot — hidden from humans, bots fill it and get silently dropped */}
       <input type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" {...register("website")} />
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
@@ -96,7 +147,7 @@ export default function DemoRequestForm() {
       </div>
       {failed && (
         <p role="alert" className="rounded-xl border border-amber/40 bg-glass px-4 py-3 text-sm text-amber">
-          Something went wrong sending your request. Please try again, or email us directly at marcominvexal@gmail.com.
+          {errorMessage}
         </p>
       )}
       <button
