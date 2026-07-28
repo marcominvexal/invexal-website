@@ -15,8 +15,20 @@ timeout /t 2 /nobreak >nul
 echo [2/5] Updating code from GitHub (latest)...
 git fetch origin main
 git reset --hard origin/main
+git clean -fd web/node_modules web/.next 2>nul
 if errorlevel 1 (
   echo ERROR: git failed. Install Git or check internet.
+  pause
+  exit /b 1
+)
+if not exist "web\app\api\contact\route.ts" (
+  echo ERROR: web folder not found. Run this from C:\invexal-website
+  pause
+  exit /b 1
+)
+findstr /C:"nodemailer" web\app\api\contact\route.ts >nul
+if errorlevel 1 (
+  echo ERROR: Old code still present. Run: git reset --hard origin/main
   pause
   exit /b 1
 )
